@@ -20,24 +20,33 @@ GoRouter buildRouter() {
       StatefulShellRoute.indexedStack(
         builder: (context, state, shell) => HomeShell(shell: shell),
         branches: [
-          StatefulShellBranch(routes: [
-            GoRoute(path: Routes.today, builder: (_, _) => const TodayScreen()),
-          ]),
-          StatefulShellBranch(routes: [
-            GoRoute(path: Routes.debts, builder: (_, _) => const DebtsScreen()),
-          ]),
-          StatefulShellBranch(routes: [
-            GoRoute(
-              path: Routes.articles,
-              builder: (_, _) => const ArticlesScreen(),
-            ),
-          ]),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: Routes.today,
+                builder: (_, _) => const TodayScreen(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: Routes.debts,
+                builder: (_, _) => const DebtsScreen(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: Routes.articles,
+                builder: (_, _) => const ArticlesScreen(),
+              ),
+            ],
+          ),
         ],
       ),
-      GoRoute(
-        path: Routes.settings,
-        builder: (_, _) => const SettingsScreen(),
-      ),
+      GoRoute(path: Routes.settings, builder: (_, _) => const SettingsScreen()),
     ],
   );
 }

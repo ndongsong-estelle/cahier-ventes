@@ -3,7 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  testWidgets("L'app démarre sur Aujourd'hui avec trois onglets", (tester) async {
+  testWidgets("L'app démarre sur Aujourd'hui avec trois onglets", (
+    tester,
+  ) async {
     await tester.pumpWidget(const ProviderScope(child: CahierApp()));
     await tester.pumpAndSettle();
     expect(find.text("Aujourd'hui"), findsWidgets);

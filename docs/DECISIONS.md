@@ -20,3 +20,7 @@
 - 2026-11-22 — T-02 — Erreurs API : {code, message} (code stable pour l'app, phrase en français) ; numéro inconnu au login = 404 unknown_phone
 - 2026-11-22 — T-02 — Le nom du token Sanctum est l'id du téléphone (devices.id) : last_seen_at mis à jour sans table de liaison
 - 2026-11-22 — T-02 — Sans OTP, pin/reset renvoie 403 otp_disabled : le code oublié passe par le code provisoire d'Estha (/admin)
+- 2026-11-22 — T-03 — Fichiers drift générés (*.g.dart) commités : la CI fournie ne lance pas build_runner
+- 2026-11-22 — T-03 — "{Nom} a payé X" plus grand que ce qui est dû : seul le dû est enregistré, le surplus est rendu à l'écran (pas de crédit d'avance)
+- 2026-11-22 — T-03 — Montant réduit sous le reçu : on réduit le dernier paiement, puis le précédent si besoin (paiement à 0 = supprimé)
+- 2026-11-22 — T-03 — Suppressions douces (deleted_at) partout ; "il en reste" peut devenir négatif (jamais de blocage), affiché Épuisé

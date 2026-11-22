@@ -34,7 +34,10 @@ ThemeData buildAppTheme() {
     titleLarge: TextStyle(fontSize: 24, fontWeight: FontWeight.w700),
     titleMedium: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
     labelLarge: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
-    headlineMedium: TextStyle(fontSize: AppSizes.amountSmall, fontWeight: FontWeight.w800),
+    headlineMedium: TextStyle(
+      fontSize: AppSizes.amountSmall,
+      fontWeight: FontWeight.w800,
+    ),
     displaySmall: TextStyle(fontSize: 44, fontWeight: FontWeight.w800),
   );
   const buttonShape = RoundedRectangleBorder(
