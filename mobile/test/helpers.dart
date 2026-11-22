@@ -1,8 +1,10 @@
 import 'dart:convert';
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:cahier_ventes/app.dart';
 import 'package:cahier_ventes/core/auth/token_store.dart';
+import 'package:cahier_ventes/core/backup/manual_backup.dart';
 import 'package:cahier_ventes/core/db/database.dart';
 import 'package:cahier_ventes/core/providers.dart';
 import 'package:cahier_ventes/core/notifications/weekly_notification.dart';
@@ -99,7 +101,17 @@ class TestEnv {
     syncRunnerProvider.overrideWithValue(NoopSyncRunner()),
     weeklyNotificationProvider.overrideWithValue(notifications),
     sharerProvider.overrideWithValue(sharer),
+    manualBackupProvider.overrideWith(
+      (ref) => ManualBackup(
+        ref.watch(databaseProvider),
+        photosDir: () async => Directory.systemTemp.createTemp('photos'),
+        tempDir: () async => Directory.systemTemp.createTemp('copie'),
+      ),
+    ),
+    filePickerProvider.overrideWithValue(picker),
   ];
+
+  final picker = FakePicker();
 
   final notifications = FakeWeekly();
   final sharer = FakeSharer();
@@ -150,21 +162,7 @@ Map<String, dynamic> userJson({int id = 1, String shop = 'Chez Awa'}) => {
 
 /// Touche le dernier widget qui porte ce texte (après l'avoir fait défiler à l'écran).
 Future<void> tapText(WidgetTester tester, String text) async {
-  if (find.text(text).evaluate().isEmpty) {
-    for (final e in find.byType(Scrollable).evaluate()) {
-      final sc = e.widget as Scrollable;
-      if (sc.axisDirection != AxisDirection.down) continue;
-      try {
-        await tester.scrollUntilVisible(
-          find.text(text),
-          200,
-          scrollable: find.byWidget(sc),
-          maxScrolls: 30,
-        );
-        break;
-      } catch (_) {}
-    }
-  }
+  await scrollTo(tester, text);
   final button = find.ancestor(
     of: find.text(text),
     matching: find.bySubtype<ButtonStyleButton>(),
@@ -174,6 +172,27 @@ Future<void> tapText(WidgetTester tester, String text) async {
   await tester.pumpAndSettle();
   await tester.tap(f);
   await settle(tester);
+}
+
+/// Fait défiler l'écran jusqu'au texte (les listes ne construisent que ce qui est visible).
+Future<void> scrollTo(WidgetTester tester, String text) async {
+  if (find.text(text).evaluate().isEmpty) {
+    for (final e in find.byType(Scrollable).evaluate()) {
+      final sc = e.widget as Scrollable;
+      if (sc.axisDirection != AxisDirection.down) continue;
+      try {
+        await tester.scrollUntilVisible(
+          find.text(text),
+          200,
+          scrollable: find.byElementPredicate((x) => identical(x, e)),
+          maxScrolls: 30,
+        );
+        break;
+      } catch (_) {
+        // Pas dans cette liste : on essaie la suivante.
+      }
+    }
+  }
 }
 
 /// Petit téléphone : 360 × 640 dp, police à 130 %.
@@ -234,4 +253,11 @@ class FakeSharer implements Sharer {
 
   @override
   Future<void> shareFile(String path, {String? text}) async => files.add(path);
+}
+
+class FakePicker implements CahierFilePicker {
+  String? next;
+
+  @override
+  Future<String?> pick() async => next;
 }

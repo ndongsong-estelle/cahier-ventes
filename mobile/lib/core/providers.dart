@@ -3,10 +3,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'api/api_client.dart';
 import 'auth/auth_api.dart';
+import 'auth/pin_lock.dart';
 import 'auth/session.dart';
 import 'auth/token_store.dart';
 import 'backup/backup_api.dart';
 import 'backup/backup_service.dart';
+import 'backup/manual_backup.dart';
 import 'config/app_config.dart';
 import 'db/database.dart';
 import 'db/ledger_repository.dart';
@@ -142,3 +144,24 @@ Future<void> applyWeeklySetting(
     // Notifications indisponibles : l'app continue.
   }
 }
+
+final pinLockProvider = Provider<PinLock>(
+  (ref) => PinLock(ref.watch(tokenStoreProvider)),
+);
+
+final filePickerProvider = Provider<CahierFilePicker>(
+  (ref) => const SystemFilePicker(),
+);
+
+final manualBackupProvider = Provider<ManualBackup>(
+  (ref) => ManualBackup(
+    ref.watch(databaseProvider),
+    photosDir: DevicePhotoService.folder,
+    tempDir: defaultTempDir,
+  ),
+);
+
+/// Verrou à l'ouverture (true = écran du code secret affiché).
+final appLockedProvider = NotifierProvider<ValueController<bool>, bool>(
+  () => ValueController<bool>(false),
+);

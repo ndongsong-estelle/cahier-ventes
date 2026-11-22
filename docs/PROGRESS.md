@@ -21,6 +21,14 @@
 | T-09 | Fait | On me doit : total, tri décroissant, depuis N jours, WhatsApp (numéro demandé une fois), fiche personne (a payé réparti + Annuler, montant trop grand, Relancer, Appeler, modifier) ; 5 tests widget |
 | T-10 | Fait | Mes articles : grille photos/initiales, prix, nom, pastilles Plus que 2 / Épuisé, plus vendus d'abord ; ajout (photo, prix, nom) ; fiche (− +, Ne plus afficher) ; 4 tests widget |
 | T-11 | Fait | Reçu (image partagée + WhatsApp direct), Bilan semaine/mois (vendu, reçu, on vous doit, flèche, 3 plus vendus), notification du dimanche 19 h ; 5 tests |
+| T-12 | Fait | Réglages complets (compte, code, verrou à l'ouverture, déconnexion, suppression, bilan du dimanche, état de la copie, aide, écran technique) + copie manuelle .cahier ; 12 tests |
+
+## Résumé phase B
+- Fait : détail d'une vente, On me doit (+ fiche personne, WhatsApp), Mes articles, Reçu, Bilan, notification du dimanche, Réglages, copie manuelle.
+- Décisions en autonomie : Modifier = un seul bouton "Garder" ; saisies de montant en plein écran ; reçu WhatsApp en texte ; voir DECISIONS.md T-08 à T-12.
+- Bugs trouvés par les tests et corrigés : Hero en double sur "J'ai vendu", messages d'erreur hors écran, verrou sans Overlay, "par rapport à le mois".
+- Tests : 36 serveur, 93 app. analyze et pint propres.
+- À vérifier par Estha : reçu partagé dans WhatsApp, notification du dimanche, verrou à l'ouverture, copie manuelle d'un téléphone à l'autre.
 
 ## Environnement
 Session cloud : PHP 8.3.6, Composer, Flutter 3.50.1 installés. composer install lent (paquets clonés depuis git) mais OK.

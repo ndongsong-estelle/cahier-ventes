@@ -6,6 +6,7 @@ import 'core/auth/session.dart';
 import 'core/providers.dart';
 import 'core/router/router.dart';
 import 'core/theme/app_theme.dart';
+import 'features/settings/ui/lock_gate.dart';
 
 class CahierApp extends ConsumerStatefulWidget {
   const CahierApp({super.key});
@@ -21,8 +22,20 @@ class _CahierAppState extends ConsumerState<CahierApp> {
     refresh: _refresh,
   );
 
+  DateTime? _pausedAt;
+
   late final AppLifecycleListener _lifecycle = AppLifecycleListener(
-    onResume: () => ref.read(syncRunnerProvider).resumed(),
+    onPause: () => _pausedAt = DateTime.now(),
+    onResume: () async {
+      ref.read(syncRunnerProvider).resumed();
+      final paused = _pausedAt;
+      if (paused != null &&
+          DateTime.now().difference(paused).inMinutes >= 2 &&
+          ref.read(sessionProvider).isLoggedIn &&
+          await shouldLock(ref)) {
+        ref.read(appLockedProvider.notifier).set(true);
+      }
+    },
   );
 
   @override
@@ -65,6 +78,12 @@ class _CahierAppState extends ConsumerState<CahierApp> {
       if (now.isLoggedIn && before?.isLoggedIn != true) {
         ref.read(syncRunnerProvider).start();
         _startNotifications();
+        // Ouverture de l'app (session gardée) : code demandé si l'option est active.
+        if (before?.status == SessionStatus.loading && before?.notice == null) {
+          shouldLock(ref).then((lock) {
+            if (lock && mounted) ref.read(appLockedProvider.notifier).set(true);
+          });
+        }
       }
       if (!now.isLoggedIn && before?.isLoggedIn == true) {
         ref.read(syncRunnerProvider).stop();
@@ -78,6 +97,8 @@ class _CahierAppState extends ConsumerState<CahierApp> {
       locale: const Locale('fr'),
       supportedLocales: const [Locale('fr')],
       localizationsDelegates: GlobalMaterialLocalizations.delegates,
+      builder: (context, child) =>
+          LockGate(child: child ?? const SizedBox.shrink()),
     );
   }
 }

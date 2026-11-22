@@ -15,6 +15,7 @@ import '../../features/receipt/ui/receipt_screen.dart';
 import '../../features/sale/ui/sale_detail_screen.dart';
 import '../../features/sell/ui/sell_screen.dart';
 import '../../features/settings/ui/settings_screen.dart';
+import '../../features/settings/ui/technical_screen.dart';
 import '../../features/today/ui/today_screen.dart';
 import '../auth/session.dart';
 import 'home_shell.dart';
@@ -30,6 +31,7 @@ abstract final class Routes {
   static const debts = '/on-me-doit';
   static const articles = '/articles';
   static const settings = '/reglages';
+  static const technical = '/reglages/technique';
   static const sell = '/vendre';
   static const bilan = '/bilan';
   static String saleDetail(String id) => '/vente/$id';
@@ -113,7 +115,16 @@ GoRouter buildRouter({
           ),
         ],
       ),
-      GoRoute(path: Routes.settings, builder: (_, _) => const SettingsScreen()),
+      GoRoute(
+        path: Routes.settings,
+        builder: (_, _) => const SettingsScreen(),
+        routes: [
+          GoRoute(
+            path: 'technique',
+            builder: (_, _) => const TechnicalScreen(),
+          ),
+        ],
+      ),
       GoRoute(path: Routes.sell, builder: (_, _) => const SellScreen()),
       GoRoute(path: Routes.bilan, builder: (_, _) => const BilanScreen()),
       GoRoute(

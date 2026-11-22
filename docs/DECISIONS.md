@@ -57,3 +57,8 @@
 - 2026-11-22 — T-11 — Bilan : "On vous doit" = restes des ventes de la période ; comparaison sur le vendu, en F, avec flèche verte/rouge ; 3 plus vendus de la période
 - 2026-11-22 — T-11 — Notification du dimanche 19 h programmée à la connexion (heure inexacte autorisée, pas de permission d'alarme exacte) ; Android 13+ demande l'autorisation des notifications une fois
 - 2026-11-22 — T-11 — Désugarage Java activé dans build.gradle.kts (exigé par flutter_local_notifications) : non vérifiable ici sans SDK Android, la CI tranchera
+- 2026-11-22 — T-12 — "Demander le code à chaque ouverture" : le code est retapé pour l'activer (hash sha256 salé en stockage sécurisé), demandé au démarrage et au retour après 2 min hors de l'app
+- 2026-11-22 — T-12 — Se déconnecter : une copie est tentée avant, le cahier reste sur le téléphone ; Supprimer mon compte : code + internet, puis tout est effacé du téléphone
+- 2026-11-22 — T-12 — Copie manuelle : photos rangées dans photos/<nom du fichier> du zip, remises dans le dossier photos de l'app à l'import
+- 2026-11-22 — T-12 — Messages d'erreur du code secret placés au-dessus du pavé (en dessous, ils sortaient de l'écran sur 640 dp)
+- 2026-11-22 — T-12 — "En attente de réseau" affiché quand le dernier envoi de copie a échoué faute de réseau

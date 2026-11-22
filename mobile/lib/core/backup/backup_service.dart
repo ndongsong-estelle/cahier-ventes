@@ -7,6 +7,9 @@ import 'cahier_file.dart';
 abstract final class BackupKey {
   static const enabled = 'backup_enabled';
   static const minIntervalMinutes = 'backup_min_interval_minutes';
+
+  /// '1' : une copie attend le réseau.
+  static const waiting = 'backup_waiting';
 }
 
 enum BackupOutcome { sent, unchanged, tooSoon, disabled, failed }
@@ -54,8 +57,10 @@ class BackupService {
         await _settings.setBool(BackupKey.enabled, false);
         return BackupOutcome.disabled;
       }
+      await _settings.setBool(BackupKey.waiting, true);
       return BackupOutcome.failed;
     }
+    await _settings.setBool(BackupKey.waiting, false);
     await _settings.set(
       SettingKey.lastBackupAt,
       _clock().toUtc().toIso8601String(),

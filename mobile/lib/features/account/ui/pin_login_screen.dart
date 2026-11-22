@@ -107,15 +107,9 @@ class _PinLoginScreenState extends ConsumerState<PinLoginScreen> {
               onRetry: () => _login(_lastPin ?? ''),
             )
           else ...[
-            PinPad(key: _pad, enabled: !_busy, onCompleted: _login),
-            if (_busy)
-              const Center(
-                child: Padding(
-                  padding: EdgeInsets.all(8),
-                  child: CircularProgressIndicator(),
-                ),
-              ),
             if (_error != null) Center(child: Notice(_error!)),
+            if (_busy) const LinearProgressIndicator(),
+            PinPad(key: _pad, enabled: !_busy, onCompleted: _login),
           ],
           const SizedBox(height: 8),
           TextButton(
