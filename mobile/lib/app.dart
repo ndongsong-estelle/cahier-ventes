@@ -36,6 +36,20 @@ class _CahierAppState extends ConsumerState<CahierApp> {
     });
   }
 
+  Future<void> _startNotifications() async {
+    try {
+      await ref
+          .read(weeklyNotificationProvider)
+          .init(onOpenBilan: () => _router.push(Routes.bilan));
+      await applyWeeklySetting(
+        ref.read(settingsStoreProvider),
+        ref.read(weeklyNotificationProvider),
+      );
+    } catch (_) {
+      // Pas de notifications sur cet appareil : rien ne bloque.
+    }
+  }
+
   @override
   void dispose() {
     _lifecycle.dispose();
@@ -50,6 +64,7 @@ class _CahierAppState extends ConsumerState<CahierApp> {
       _refresh.value++;
       if (now.isLoggedIn && before?.isLoggedIn != true) {
         ref.read(syncRunnerProvider).start();
+        _startNotifications();
       }
       if (!now.isLoggedIn && before?.isLoggedIn == true) {
         ref.read(syncRunnerProvider).stop();

@@ -341,3 +341,58 @@ extension DebtQueries on LedgerRepository {
     );
   }
 }
+
+class TopArticle {
+  const TopArticle(this.article, this.quantity);
+  final Article article;
+  final int quantity;
+}
+
+class PeriodReport {
+  const PeriodReport({
+    required this.period,
+    required this.sold,
+    required this.received,
+    required this.owed,
+    required this.previousSold,
+    required this.top,
+  });
+
+  final Period period;
+  final int sold;
+  final int received;
+
+  /// Ce qui reste à payer sur les ventes de la période.
+  final int owed;
+  final int previousSold;
+  final List<TopArticle> top;
+}
+
+extension ReportQueries on LedgerRepository {
+  Future<PeriodReport> report(Period period, Period previous) async {
+    final lines = await saleLines();
+    final inPeriod = lines.where((l) => period.contains(l.soldAt)).toList();
+    final quantities = (await soldQuantities()).where(
+      (q) => period.contains(q.soldAt),
+    );
+    final totals = <String, int>{};
+    for (final q in quantities) {
+      totals[q.articleId] = (totals[q.articleId] ?? 0) + q.quantity;
+    }
+    final ranked = totals.entries.toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
+    final top = <TopArticle>[];
+    for (final e in ranked.take(3)) {
+      final a = await article(e.key);
+      if (a != null) top.add(TopArticle(a, e.value));
+    }
+    return PeriodReport(
+      period: period,
+      sold: soldIn(lines, period),
+      received: await receivedBetween(period),
+      owed: owedBy(inPeriod),
+      previousSold: soldIn(lines, previous),
+      top: top,
+    );
+  }
+}

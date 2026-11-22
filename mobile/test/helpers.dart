@@ -5,7 +5,9 @@ import 'package:cahier_ventes/app.dart';
 import 'package:cahier_ventes/core/auth/token_store.dart';
 import 'package:cahier_ventes/core/db/database.dart';
 import 'package:cahier_ventes/core/providers.dart';
+import 'package:cahier_ventes/core/notifications/weekly_notification.dart';
 import 'package:cahier_ventes/core/sync/sync_runner.dart';
+import 'package:cahier_ventes/core/ui/share.dart';
 import 'package:dio/dio.dart';
 import 'package:drift/drift.dart' show DatabaseConnection, driftRuntimeOptions;
 import 'package:drift/native.dart';
@@ -95,7 +97,12 @@ class TestEnv {
     tokenStoreProvider.overrideWithValue(tokens),
     httpAdapterProvider.overrideWithValue(server),
     syncRunnerProvider.overrideWithValue(NoopSyncRunner()),
+    weeklyNotificationProvider.overrideWithValue(notifications),
+    sharerProvider.overrideWithValue(sharer),
   ];
+
+  final notifications = FakeWeekly();
+  final sharer = FakeSharer();
 
   late ProviderContainer container;
 
@@ -198,4 +205,33 @@ class NoopSyncRunner extends SyncRunner {
 
   @override
   void resumed() {}
+}
+
+class FakeWeekly implements WeeklyNotification {
+  int scheduled = 0;
+  int cancelled = 0;
+
+  @override
+  Future<void> init({required void Function() onOpenBilan}) async {}
+
+  @override
+  Future<void> schedule() async => scheduled++;
+
+  @override
+  Future<void> cancel() async => cancelled++;
+}
+
+class FakeSharer implements Sharer {
+  final images = <(Uint8List, String?)>[];
+  final files = <String>[];
+
+  @override
+  Future<void> shareImage(
+    Uint8List png, {
+    required String name,
+    String? text,
+  }) async => images.add((png, text));
+
+  @override
+  Future<void> shareFile(String path, {String? text}) async => files.add(path);
 }

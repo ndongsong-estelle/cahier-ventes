@@ -248,3 +248,18 @@ List<MapEntry<String, int>> topArticles(
   }
   return totals.entries.toList()..sort((a, b) => b.value.compareTo(a.value));
 }
+
+/// Mois civil, heure locale.
+Period monthOf(DateTime now) {
+  final l = now.toLocal();
+  return Period(DateTime(l.year, l.month), DateTime(l.year, l.month + 1));
+}
+
+/// Période précédente de même nature (semaine ou mois).
+Period previousWeek(Period week) => Period(
+  DateTime(week.start.year, week.start.month, week.start.day - 7),
+  week.start,
+);
+
+Period previousMonth(Period month) =>
+    Period(DateTime(month.start.year, month.start.month - 1), month.start);

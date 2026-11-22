@@ -13,7 +13,9 @@ import 'db/ledger_repository.dart';
 import 'db/settings_store.dart';
 import 'photos/photo_service.dart';
 import 'sync/sync_runner.dart';
+import 'notifications/weekly_notification.dart';
 import 'ui/contact.dart';
+import 'ui/share.dart';
 
 /// Remplacé dans les tests (NativeDatabase.memory()).
 final databaseProvider = Provider<AppDatabase>((ref) {
@@ -121,3 +123,22 @@ final syncRunnerProvider = Provider<SyncRunner>((ref) {
 
 /// Ouvre WhatsApp, le téléphone, une page web. Remplacé dans les tests.
 final urlOpenerProvider = Provider<UrlOpener>((ref) => openExternal);
+
+final sharerProvider = Provider<Sharer>((ref) => const SystemSharer());
+
+final weeklyNotificationProvider = Provider<WeeklyNotification>(
+  (ref) => LocalWeeklyNotification(),
+);
+
+/// Programme (ou retire) la notification du dimanche selon le réglage weekly_summary.
+Future<void> applyWeeklySetting(
+  SettingsStore settings,
+  WeeklyNotification n,
+) async {
+  final on = await settings.getBool(SettingKey.weeklySummary, fallback: true);
+  try {
+    on ? await n.schedule() : await n.cancel();
+  } catch (_) {
+    // Notifications indisponibles : l'app continue.
+  }
+}

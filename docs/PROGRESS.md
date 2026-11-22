@@ -20,6 +20,7 @@
 | T-08 | Fait | Détail : montant, photos, articles, nom, heure, reçu par moyen et date, reste ; {Nom} a payé, Envoyer le reçu, Modifier, Supprimer + Annuler ; 5 tests widget |
 | T-09 | Fait | On me doit : total, tri décroissant, depuis N jours, WhatsApp (numéro demandé une fois), fiche personne (a payé réparti + Annuler, montant trop grand, Relancer, Appeler, modifier) ; 5 tests widget |
 | T-10 | Fait | Mes articles : grille photos/initiales, prix, nom, pastilles Plus que 2 / Épuisé, plus vendus d'abord ; ajout (photo, prix, nom) ; fiche (− +, Ne plus afficher) ; 4 tests widget |
+| T-11 | Fait | Reçu (image partagée + WhatsApp direct), Bilan semaine/mois (vendu, reçu, on vous doit, flèche, 3 plus vendus), notification du dimanche 19 h ; 5 tests |
 
 ## Environnement
 Session cloud : PHP 8.3.6, Composer, Flutter 3.50.1 installés. composer install lent (paquets clonés depuis git) mais OK.
@@ -27,5 +28,7 @@ Session cloud : PHP 8.3.6, Composer, Flutter 3.50.1 installés. composer install
 ## Ce qui reste à faire pour Estha
 - Donner à Claude l'accès GitHub au dépôt (claude.ai/connect-github + app Claude GitHub installée) : tous les git push
   de cette session ont été refusés (403). Les commits sont sur main en local ; sans push, la CI n'a jamais tourné.
+- Vérifier que la CI construit l'APK (désugarage Java ajouté pour les notifications, jamais compilé ici faute de SDK Android).
+- Sur un vrai téléphone : la notification du dimanche 19 h arrive et ouvre le Bilan.
 
 ## Dernière session

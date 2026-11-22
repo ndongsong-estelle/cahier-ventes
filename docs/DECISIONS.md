@@ -53,3 +53,7 @@
 - 2026-11-22 — T-10 — "Il en reste combien ?" : non suivi = "—" ; + commence le suivi à 1 ; − s'arrête à 0 ; on ne revient pas à "non suivi" (cas rare, évite un mot de plus)
 - 2026-11-22 — T-10 — "Ne plus afficher" retire l'article de la grille et de J'ai vendu, avec Annuler 5 s ; les anciennes ventes le gardent
 - 2026-11-22 — T-10 — Fiche article : prix et nom enregistrés avec "Garder" (+ Annuler) ; − et + enregistrés tout de suite
+- 2026-11-22 — T-11 — Reçu : "Envoyer" partage l'image (partage Android) ; "WhatsApp {Nom}" ouvre sa discussion avec le reçu en texte (wa.me ne peut pas joindre une image)
+- 2026-11-22 — T-11 — Bilan : "On vous doit" = restes des ventes de la période ; comparaison sur le vendu, en F, avec flèche verte/rouge ; 3 plus vendus de la période
+- 2026-11-22 — T-11 — Notification du dimanche 19 h programmée à la connexion (heure inexacte autorisée, pas de permission d'alarme exacte) ; Android 13+ demande l'autorisation des notifications une fois
+- 2026-11-22 — T-11 — Désugarage Java activé dans build.gradle.kts (exigé par flutter_local_notifications) : non vérifiable ici sans SDK Android, la CI tranchera

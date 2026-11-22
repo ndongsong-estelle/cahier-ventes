@@ -8,8 +8,10 @@ import '../../features/account/ui/phone_screen.dart';
 import '../../features/account/ui/pin_login_screen.dart';
 import '../../features/articles/ui/article_screen.dart';
 import '../../features/articles/ui/articles_screen.dart';
+import '../../features/bilan/ui/bilan_screen.dart';
 import '../../features/debts/ui/debts_screen.dart';
 import '../../features/debts/ui/person_screen.dart';
+import '../../features/receipt/ui/receipt_screen.dart';
 import '../../features/sale/ui/sale_detail_screen.dart';
 import '../../features/sell/ui/sell_screen.dart';
 import '../../features/settings/ui/settings_screen.dart';
@@ -113,10 +115,7 @@ GoRouter buildRouter({
       ),
       GoRoute(path: Routes.settings, builder: (_, _) => const SettingsScreen()),
       GoRoute(path: Routes.sell, builder: (_, _) => const SellScreen()),
-      GoRoute(
-        path: Routes.bilan,
-        builder: (_, _) => const PendingScreen(title: 'Bilan'),
-      ),
+      GoRoute(path: Routes.bilan, builder: (_, _) => const BilanScreen()),
       GoRoute(
         path: Routes.newArticle,
         builder: (_, _) => const ArticleScreen(),
@@ -139,7 +138,7 @@ GoRouter buildRouter({
           ),
           GoRoute(
             path: 'recu',
-            builder: (_, _) => const PendingScreen(title: 'Reçu'),
+            builder: (_, s) => ReceiptScreen(saleId: s.pathParameters['id']!),
           ),
         ],
       ),

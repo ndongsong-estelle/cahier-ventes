@@ -223,4 +223,14 @@ void main() {
     ], now);
     expect(top.map((e) => '${e.key}:${e.value}'), ['riz:6', 'huile:5']);
   });
+
+  test('mois et périodes précédentes', () {
+    final m = monthOf(DateTime(2026, 1, 15, 8));
+    expect(m.start, DateTime(2026, 1, 1));
+    expect(m.end, DateTime(2026, 2, 1));
+    expect(previousMonth(m).start, DateTime(2025, 12, 1));
+    final w = weekOf(DateTime(2026, 11, 4));
+    expect(previousWeek(w).start, DateTime(2026, 10, 26));
+    expect(previousWeek(w).end, w.start);
+  });
 }
