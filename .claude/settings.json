@@ -1,0 +1,28 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(php:*)",
+      "Bash(composer:*)",
+      "Bash(./vendor/bin/pint:*)",
+      "Bash(./vendor/bin/pest:*)",
+      "Bash(flutter:*)",
+      "Bash(dart:*)",
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git log:*)",
+      "Bash(git push:*)",
+      "Bash(./scripts/setup-env.sh)"
+    ],
+    "deny": [
+      "Bash(git push --force:*)",
+      "Bash(git push -f:*)",
+      "Read(./backend/vendor/**)",
+      "Read(./backend/node_modules/**)",
+      "Read(./mobile/build/**)",
+      "Read(./mobile/.dart_tool/**)",
+      "Read(./backend/.env)"
+    ]
+  }
+}

@@ -1,0 +1,72 @@
+name: CI
+on:
+  push:
+  workflow_dispatch:
+    inputs:
+      pilote:
+        description: "Build pilote (relié au serveur, signé)"
+        type: boolean
+        default: false
+      api_url:
+        description: "Adresse du serveur pour un APK de test (ex. http://192.168.1.20:8000/api)"
+        type: string
+        default: ""
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    defaults: { run: { working-directory: backend } }
+    steps:
+      - uses: actions/checkout@v4
+      - if: hashFiles('backend/composer.json') != ''
+        uses: shivammathur/setup-php@v2
+        with: { php-version: '8.3', extensions: 'sqlite3, intl, zip' }
+      - if: hashFiles('backend/composer.json') != ''
+        run: |
+          composer install --no-interaction --prefer-dist
+          cp .env.example .env && php artisan key:generate
+          ./vendor/bin/pint --test
+          php artisan test
+  app:
+    runs-on: ubuntu-latest
+    defaults: { run: { working-directory: mobile } }
+    steps:
+      - uses: actions/checkout@v4
+      - if: hashFiles('mobile/pubspec.yaml') != ''
+        uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: '17' }
+      - if: hashFiles('mobile/pubspec.yaml') != ''
+        uses: subosito/flutter-action@v2
+        with: { channel: stable, cache: true }
+      - if: hashFiles('mobile/pubspec.yaml') != ''
+        run: flutter pub get && flutter analyze --no-fatal-infos && flutter test
+      - name: Vérifier la configuration du pilote
+        if: inputs.pilote
+        env:
+          PILOT_API_URL: ${{ vars.PILOT_API_URL }}
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+        run: |
+          [ -n "$PILOT_API_URL" ] || { echo "::error::Variable PILOT_API_URL manquante"; exit 1; }
+          [ -n "$KEYSTORE_BASE64" ] || { echo "::error::Keystore manquant dans les secrets"; exit 1; }
+      - name: Préparer la signature
+        if: inputs.pilote
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: |
+          echo "$KEYSTORE_BASE64" | base64 -d > android/app/upload.jks
+          printf "storeFile=upload.jks\nstorePassword=%s\nkeyAlias=%s\nkeyPassword=%s\n" \
+            "$KEYSTORE_PASSWORD" "$KEY_ALIAS" "$KEY_PASSWORD" > android/key.properties
+      - name: APK
+        if: hashFiles('mobile/pubspec.yaml') != ''
+        env:
+          PILOT_API_URL: ${{ inputs.pilote && vars.PILOT_API_URL || inputs.api_url || '' }}
+        run: flutter build apk --release --split-per-abi ${PILOT_API_URL:+--dart-define=PILOT_API_URL=$PILOT_API_URL}
+      - if: hashFiles('mobile/pubspec.yaml') != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ inputs.pilote && 'apk-pilote' || 'apk-dev' }}
+          path: |
+            mobile/build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk
+            mobile/build/app/outputs/flutter-apk/app-arm64-v8a-release.apk
