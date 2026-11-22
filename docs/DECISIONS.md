@@ -50,3 +50,6 @@
 - 2026-11-22 — T-09 — Saisie d'un montant (a payé, une partie) en plein écran : la fenêtre ne tenait pas sur 640 dp avec le pavé
 - 2026-11-22 — T-09 — Message de relance : formatFcfa inclut déjà "F" ("Il reste 25 000 F à régler"), pas de "F F"
 - 2026-11-22 — T-09 — Boutons "J'ai vendu" sans animation Hero (deux boutons identiques dans les onglets gardés en mémoire faisaient planter la navigation)
+- 2026-11-22 — T-10 — "Il en reste combien ?" : non suivi = "—" ; + commence le suivi à 1 ; − s'arrête à 0 ; on ne revient pas à "non suivi" (cas rare, évite un mot de plus)
+- 2026-11-22 — T-10 — "Ne plus afficher" retire l'article de la grille et de J'ai vendu, avec Annuler 5 s ; les anciennes ventes le gardent
+- 2026-11-22 — T-10 — Fiche article : prix et nom enregistrés avec "Garder" (+ Annuler) ; − et + enregistrés tout de suite

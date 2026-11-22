@@ -19,6 +19,7 @@
 - À vérifier par Estha : parcours de création sur un vrai téléphone (pavé, SMS désactivé), et "J'ai vendu" en 3 touchers.
 | T-08 | Fait | Détail : montant, photos, articles, nom, heure, reçu par moyen et date, reste ; {Nom} a payé, Envoyer le reçu, Modifier, Supprimer + Annuler ; 5 tests widget |
 | T-09 | Fait | On me doit : total, tri décroissant, depuis N jours, WhatsApp (numéro demandé une fois), fiche personne (a payé réparti + Annuler, montant trop grand, Relancer, Appeler, modifier) ; 5 tests widget |
+| T-10 | Fait | Mes articles : grille photos/initiales, prix, nom, pastilles Plus que 2 / Épuisé, plus vendus d'abord ; ajout (photo, prix, nom) ; fiche (− +, Ne plus afficher) ; 4 tests widget |
 
 ## Environnement
 Session cloud : PHP 8.3.6, Composer, Flutter 3.50.1 installés. composer install lent (paquets clonés depuis git) mais OK.

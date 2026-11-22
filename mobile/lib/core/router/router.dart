@@ -6,6 +6,7 @@ import '../../features/account/ui/new_pin_screen.dart';
 import '../../features/account/ui/otp_screen.dart';
 import '../../features/account/ui/phone_screen.dart';
 import '../../features/account/ui/pin_login_screen.dart';
+import '../../features/articles/ui/article_screen.dart';
 import '../../features/articles/ui/articles_screen.dart';
 import '../../features/debts/ui/debts_screen.dart';
 import '../../features/debts/ui/person_screen.dart';
@@ -32,6 +33,8 @@ abstract final class Routes {
   static String saleDetail(String id) => '/vente/$id';
   static String editSale(String id) => '/vente/$id/modifier';
   static String person(String id) => '/personne/$id';
+  static const newArticle = '/article/nouveau';
+  static String article(String id) => '/article/$id';
   static String receipt(String id) => '/vente/$id/recu';
 }
 
@@ -113,6 +116,14 @@ GoRouter buildRouter({
       GoRoute(
         path: Routes.bilan,
         builder: (_, _) => const PendingScreen(title: 'Bilan'),
+      ),
+      GoRoute(
+        path: Routes.newArticle,
+        builder: (_, _) => const ArticleScreen(),
+      ),
+      GoRoute(
+        path: '/article/:id',
+        builder: (_, s) => ArticleScreen(articleId: s.pathParameters['id']),
       ),
       GoRoute(
         path: '/personne/:id',
