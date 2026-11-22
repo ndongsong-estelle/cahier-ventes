@@ -1,0 +1,5 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Flavor dev uniquement : autorise le HTTP en clair (serveur local de test).
+         Le flavor pilote n'a jamais ce fichier. -->
+    <application android:networkSecurityConfig="@xml/network_security_config" />
+</manifest>

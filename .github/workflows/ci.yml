@@ -11,6 +11,9 @@ on:
         description: "Adresse du serveur pour un APK de test (ex. http://192.168.1.20:8000/api)"
         type: string
         default: ""
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
   backend:
     runs-on: ubuntu-latest
@@ -28,17 +31,20 @@ jobs:
           php artisan test
   app:
     runs-on: ubuntu-latest
+    # Les secrets du keystore sont rattachés à l'environment "pilote".
+    environment: ${{ inputs.pilote && 'pilote' || '' }}
     defaults: { run: { working-directory: mobile } }
+    env:
+      # APK construit seulement sur lancement manuel ou push vers main.
+      BUILD_APK: ${{ github.event_name == 'workflow_dispatch' || github.ref == 'refs/heads/main' }}
+      FLAVOR: ${{ inputs.pilote && 'pilote' || 'dev' }}
     steps:
       - uses: actions/checkout@v4
-      - if: hashFiles('mobile/pubspec.yaml') != ''
-        uses: actions/setup-java@v4
-        with: { distribution: temurin, java-version: '17' }
-      - if: hashFiles('mobile/pubspec.yaml') != ''
-        uses: subosito/flutter-action@v2
-        with: { channel: stable, cache: true }
-      - if: hashFiles('mobile/pubspec.yaml') != ''
-        run: flutter pub get && flutter analyze --no-fatal-infos && flutter test
+      - name: Pilote seulement depuis main
+        if: inputs.pilote && github.ref != 'refs/heads/main'
+        run: |
+          echo "::error::Le build pilote n'est autorisé que depuis main (ref actuelle : $GITHUB_REF)"
+          exit 1
       - name: Vérifier la configuration du pilote
         if: inputs.pilote
         env:
@@ -47,6 +53,14 @@ jobs:
         run: |
           [ -n "$PILOT_API_URL" ] || { echo "::error::Variable PILOT_API_URL manquante"; exit 1; }
           [ -n "$KEYSTORE_BASE64" ] || { echo "::error::Keystore manquant dans les secrets"; exit 1; }
+      - if: hashFiles('mobile/pubspec.yaml') != ''
+        uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: '17' }
+      - if: hashFiles('mobile/pubspec.yaml') != ''
+        uses: subosito/flutter-action@v2
+        with: { channel: stable, cache: true }
+      - if: hashFiles('mobile/pubspec.yaml') != ''
+        run: flutter pub get && flutter analyze --no-fatal-infos && flutter test
       - name: Préparer la signature
         if: inputs.pilote
         env:
@@ -59,14 +73,40 @@ jobs:
           printf "storeFile=upload.jks\nstorePassword=%s\nkeyAlias=%s\nkeyPassword=%s\n" \
             "$KEYSTORE_PASSWORD" "$KEY_ALIAS" "$KEY_PASSWORD" > android/key.properties
       - name: APK
-        if: hashFiles('mobile/pubspec.yaml') != ''
+        if: env.BUILD_APK == 'true' && hashFiles('mobile/pubspec.yaml') != ''
         env:
           PILOT_API_URL: ${{ inputs.pilote && vars.PILOT_API_URL || inputs.api_url || '' }}
-        run: flutter build apk --release --split-per-abi ${PILOT_API_URL:+--dart-define=PILOT_API_URL=$PILOT_API_URL}
-      - if: hashFiles('mobile/pubspec.yaml') != ''
+        run: |
+          flutter build apk --release --flavor "$FLAVOR" --split-per-abi \
+            --build-number=${{ github.run_number }} \
+            ${PILOT_API_URL:+--dart-define=PILOT_API_URL=$PILOT_API_URL}
+      - name: Vérifier la signature du pilote
+        if: inputs.pilote && env.BUILD_APK == 'true'
+        env:
+          PILOT_CERT_SHA256: ${{ vars.PILOT_CERT_SHA256 }}
+        run: |
+          BT=$(ls -d "$ANDROID_HOME"/build-tools/*/ | sort -V | tail -n1)
+          echo "apksigner : ${BT}apksigner"
+          expected=$(echo "$PILOT_CERT_SHA256" | tr -d ': ' | tr '[:upper:]' '[:lower:]')
+          shopt -s nullglob
+          apks=(build/app/outputs/flutter-apk/app-*-pilote-release.apk)
+          [ ${#apks[@]} -gt 0 ] || { echo "::error::Aucun APK pilote trouvé"; exit 1; }
+          for apk in "${apks[@]}"; do
+            out=$("${BT}apksigner" verify --print-certs "$apk")
+            echo "$apk"; echo "$out"
+            if echo "$out" | grep -q "CN=Android Debug"; then
+              echo "::error::$apk est signé avec la clé debug"; exit 1
+            fi
+            if [ -n "$expected" ]; then
+              actual=$(echo "$out" | grep -m1 "certificate SHA-256 digest:" | awk '{print $NF}' | tr '[:upper:]' '[:lower:]')
+              [ "$actual" = "$expected" ] || { echo "::error::Empreinte SHA-256 inattendue pour $apk : $actual"; exit 1; }
+            fi
+          done
+      - if: env.BUILD_APK == 'true' && hashFiles('mobile/pubspec.yaml') != ''
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ inputs.pilote && 'apk-pilote' || 'apk-dev' }}
+          name: apk-${{ env.FLAVOR }}
+          if-no-files-found: error
           path: |
-            mobile/build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk
-            mobile/build/app/outputs/flutter-apk/app-arm64-v8a-release.apk
+            mobile/build/app/outputs/flutter-apk/app-armeabi-v7a-${{ env.FLAVOR }}-release.apk
+            mobile/build/app/outputs/flutter-apk/app-arm64-v8a-${{ env.FLAVOR }}-release.apk
