@@ -1,6 +1,8 @@
 import 'package:drift/drift.dart';
 
 import '../domain/ledger.dart';
+import '../domain/ledger.dart' as ledger_rules show received;
+import '../format/fcfa.dart';
 import 'database.dart';
 import 'ledger_repository.dart';
 
@@ -191,5 +193,80 @@ extension SellQueries on LedgerRepository {
         )
         .getSingle();
     return row.read<int>('n') > 0;
+  }
+}
+
+class SoldLine {
+  const SoldLine(this.article, this.quantity);
+  final Article article;
+  final int quantity;
+
+  String get label => '${article.name ?? formatFcfa(article.price)} ×$quantity';
+}
+
+class SaleDetail {
+  const SaleDetail({
+    required this.sale,
+    required this.line,
+    required this.person,
+    required this.articles,
+    required this.payments,
+  });
+
+  final Sale sale;
+  final SaleLine line;
+  final Person? person;
+  final List<SoldLine> articles;
+
+  /// Paiements non supprimés, du plus ancien au plus récent.
+  final List<Payment> payments;
+
+  int get received => ledger_rules.received(line);
+  int get rest => remaining(line);
+  SaleStatus get status => statusOf(line);
+  List<String> get photos => [
+    ?sale.photoPath,
+    for (final a in articles) ?a.article.photoPath,
+  ];
+}
+
+extension DetailQueries on LedgerRepository {
+  Future<SaleDetail?> saleDetail(String saleId) async {
+    final sale = await (db.select(
+      db.sales,
+    )..where((s) => s.id.equals(saleId))).getSingleOrNull();
+    if (sale == null) return null;
+    final person = sale.personId == null
+        ? null
+        : await (db.select(
+            db.people,
+          )..where((p) => p.id.equals(sale.personId!))).getSingleOrNull();
+    final rows = await (db.select(db.saleArticles).join([
+      innerJoin(
+        db.articles,
+        db.articles.id.equalsExp(db.saleArticles.articleId),
+      ),
+    ])..where(db.saleArticles.saleId.equals(saleId))).get();
+    final payments =
+        await (db.select(db.payments)
+              ..where((p) => p.saleId.equals(saleId) & p.deletedAt.isNull())
+              ..orderBy([
+                (p) => OrderingTerm.asc(p.paidAt),
+                (p) => OrderingTerm.asc(p.createdAt),
+              ]))
+            .get();
+    return SaleDetail(
+      sale: sale,
+      line: await saleLine(saleId),
+      person: person,
+      articles: [
+        for (final r in rows)
+          SoldLine(
+            r.readTable(db.articles),
+            r.readTable(db.saleArticles).quantity,
+          ),
+      ],
+      payments: payments,
+    );
   }
 }

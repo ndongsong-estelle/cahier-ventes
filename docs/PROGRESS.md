@@ -17,10 +17,13 @@
 - Tests : 36 côté serveur (Pest), 62 côté app (unitaires + widgets, dont 360×640 à 130 %). Pint et flutter analyze propres.
 - À vérifier par Estha : git push refusé (403, accès GitHub) donc CI jamais lancée ; APK à construire par la CI une fois le push possible.
 - À vérifier par Estha : parcours de création sur un vrai téléphone (pavé, SMS désactivé), et "J'ai vendu" en 3 touchers.
+| T-08 | Fait | Détail : montant, photos, articles, nom, heure, reçu par moyen et date, reste ; {Nom} a payé, Envoyer le reçu, Modifier, Supprimer + Annuler ; 5 tests widget |
 
 ## Environnement
 Session cloud : PHP 8.3.6, Composer, Flutter 3.50.1 installés. composer install lent (paquets clonés depuis git) mais OK.
 
 ## Ce qui reste à faire pour Estha
+- Donner à Claude l'accès GitHub au dépôt (claude.ai/connect-github + app Claude GitHub installée) : tous les git push
+  de cette session ont été refusés (403). Les commits sont sur main en local ; sans push, la CI n'a jamais tourné.
 
 ## Dernière session

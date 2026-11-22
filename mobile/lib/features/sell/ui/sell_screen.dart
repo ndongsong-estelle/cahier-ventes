@@ -1,3 +1,4 @@
+import 'package:drift/drift.dart' show Value;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
@@ -9,6 +10,7 @@ import '../../../core/format/fcfa.dart';
 import '../../../core/providers.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/ui/amount_pad.dart';
+import '../../../core/ui/pay_dialog.dart';
 import '../../../core/ui/sale_tile.dart';
 import 'sell_dialogs.dart';
 
@@ -27,7 +29,10 @@ enum _Paid { all, part, none }
 
 /// J'ai vendu (écran le plus important).
 class SellScreen extends ConsumerStatefulWidget {
-  const SellScreen({super.key});
+  const SellScreen({super.key, this.saleId});
+
+  /// Vente à modifier (null = nouvelle vente).
+  final String? saleId;
 
   @override
   ConsumerState<SellScreen> createState() => _SellScreenState();
@@ -41,6 +46,55 @@ class _SellScreenState extends ConsumerState<SellScreen> {
   final _name = TextEditingController();
   PayMethod _method = PayMethod.cash;
   bool _saving = false;
+
+  int _received = 0;
+
+  bool get _editing => widget.saleId != null;
+
+  @override
+  void initState() {
+    super.initState();
+    if (_editing) _load();
+  }
+
+  Future<void> _load() async {
+    final d = await ref.read(ledgerProvider).saleDetail(widget.saleId!);
+    if (d == null || !mounted) return;
+    setState(() {
+      _amount = d.sale.amount;
+      _photo = d.sale.photoPath;
+      _name.text = d.person?.name ?? '';
+      _received = d.received;
+      for (final a in d.articles) {
+        if (_article(a.article.id) == null) _known.add(a.article);
+        _tags[a.article.id] = (_tags[a.article.id] ?? 0) + a.quantity;
+      }
+    });
+  }
+
+  /// Modifier : un seul bouton "Garder". Les paiements se corrigent depuis le détail.
+  Future<void> _saveEdit(List<Person> people) async {
+    if (_amount <= 0 || _saving) return;
+    var name = _name.text.trim();
+    if (name.isEmpty && _received < _amount) {
+      name = (await askWhoOwes(context, people))?.trim() ?? '';
+      if (name.isEmpty) return;
+    }
+    setState(() => _saving = true);
+    final ledger = ref.read(ledgerProvider);
+    final id = widget.saleId!;
+    final before = await ledger.snapshot(id);
+    await ledger.updateSale(
+      id,
+      amount: _amount,
+      personId: Value(name.isEmpty ? null : await ledger.personByName(name)),
+      articles: [for (final e in _tags.entries) SoldArticle(e.key, e.value)],
+    );
+    if (_photo != before.sale.photoPath) await ledger.setSalePhoto(id, _photo);
+    if (!mounted) return;
+    showUndo(context, 'Vente modifiée', () => ledger.restoreSnapshot(before));
+    context.pop();
+  }
 
   @override
   void dispose() {
@@ -122,29 +176,14 @@ class _SellScreenState extends ConsumerState<SellScreen> {
       photoPath: _photo,
     );
     if (!mounted) return;
-    final messenger = ScaffoldMessenger.of(context);
     final photos = ref.read(photoServiceProvider);
     final photo = _photo;
-    messenger
-      ..clearSnackBars()
-      ..showSnackBar(
-        SnackBar(
-          duration: const Duration(seconds: 5),
-          content: const Text(
-            'Vente enregistrée',
-            style: TextStyle(fontSize: 20),
-          ),
-          action: SnackBarAction(
-            label: 'Annuler',
-            onPressed: () async {
-              await ledger.deleteSale(saleId);
-              if (photo != null && !await ledger.photoInUse(photo)) {
-                await photos.delete(photo);
-              }
-            },
-          ),
-        ),
-      );
+    showUndo(context, 'Vente enregistrée', () async {
+      await ledger.deleteSale(saleId);
+      if (photo != null && !await ledger.photoInUse(photo)) {
+        await photos.delete(photo);
+      }
+    });
     context.pop();
   }
 
@@ -350,29 +389,50 @@ class _SellScreenState extends ConsumerState<SellScreen> {
                 onChanged: (v) => setState(() => _amount = v),
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(8, 6, 8, 8),
-              child: Row(
-                children: [
-                  _ActionButton(
-                    label: 'PAYÉ',
-                    icon: Icons.check,
-                    color: AppColors.green,
-                    onPressed: enabled ? () => _save(_Paid.all, people) : null,
-                  ),
-                  _ActionButton(
-                    label: 'UNE PARTIE',
-                    color: AppColors.orangeText,
-                    onPressed: enabled ? () => _save(_Paid.part, people) : null,
-                  ),
-                  _ActionButton(
-                    label: 'PAS ENCORE',
-                    color: AppColors.red,
-                    onPressed: enabled ? () => _save(_Paid.none, people) : null,
-                  ),
-                ],
+            if (_editing)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(8, 6, 8, 8),
+                child: Row(
+                  children: [
+                    _ActionButton(
+                      label: 'Garder',
+                      icon: Icons.check,
+                      color: AppColors.green,
+                      onPressed: enabled ? () => _saveEdit(people) : null,
+                    ),
+                  ],
+                ),
+              )
+            else
+              Padding(
+                padding: const EdgeInsets.fromLTRB(8, 6, 8, 8),
+                child: Row(
+                  children: [
+                    _ActionButton(
+                      label: 'PAYÉ',
+                      icon: Icons.check,
+                      color: AppColors.green,
+                      onPressed: enabled
+                          ? () => _save(_Paid.all, people)
+                          : null,
+                    ),
+                    _ActionButton(
+                      label: 'UNE PARTIE',
+                      color: AppColors.orangeText,
+                      onPressed: enabled
+                          ? () => _save(_Paid.part, people)
+                          : null,
+                    ),
+                    _ActionButton(
+                      label: 'PAS ENCORE',
+                      color: AppColors.red,
+                      onPressed: enabled
+                          ? () => _save(_Paid.none, people)
+                          : null,
+                    ),
+                  ],
+                ),
               ),
-            ),
           ],
         ),
       ),

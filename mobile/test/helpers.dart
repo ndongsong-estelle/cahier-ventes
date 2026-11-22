@@ -13,7 +13,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart'
-    show ButtonStyleButton, FlutterError, Size;
+    show AxisDirection, ButtonStyleButton, FlutterError, Scrollable, Size;
 
 typedef Handler = (int, Object) Function(RequestOptions r);
 
@@ -143,6 +143,21 @@ Map<String, dynamic> userJson({int id = 1, String shop = 'Chez Awa'}) => {
 
 /// Touche le dernier widget qui porte ce texte (après l'avoir fait défiler à l'écran).
 Future<void> tapText(WidgetTester tester, String text) async {
+  if (find.text(text).evaluate().isEmpty) {
+    for (final e in find.byType(Scrollable).evaluate()) {
+      final sc = e.widget as Scrollable;
+      if (sc.axisDirection != AxisDirection.down) continue;
+      try {
+        await tester.scrollUntilVisible(
+          find.text(text),
+          200,
+          scrollable: find.byWidget(sc),
+          maxScrolls: 30,
+        );
+        break;
+      } catch (_) {}
+    }
+  }
   final button = find.ancestor(
     of: find.text(text),
     matching: find.bySubtype<ButtonStyleButton>(),

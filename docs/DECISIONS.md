@@ -43,3 +43,6 @@
 - 2026-11-22 — T-07 — Photos : chemins gardés dans data.json mais remis à null à la restauration si le fichier n'existe pas sur ce téléphone
 - 2026-11-22 — T-07 — Reconnexion de la même personne : cahier local envoyé si sa dernière modification (updated_at max) est plus récente que la copie du serveur, sinon restauration
 - 2026-11-22 — T-07 — Échec réseau pendant la récupération après connexion : on ouvre quand même Aujourd'hui, la copie sera retentée plus tard
+- 2026-11-22 — T-08 — Modifier : J'ai vendu prérempli avec un seul bouton "Garder" (montant, articles, nom, photo) ; les paiements se corrigent dans le détail (ajout "{Nom} a payé", suppression avec confirmation)
+- 2026-11-22 — T-08 — Annuler après modification remet la vente exactement comme avant (montant, articles, personne, paiements) ; après suppression, la vente et ses paiements reviennent
+- 2026-11-22 — T-08 — Vente sans nom avec un reste : le bouton s'appelle "Payé" au lieu de "{Nom} a payé"

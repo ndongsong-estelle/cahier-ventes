@@ -20,6 +20,13 @@ enum PayMethod {
       values.firstWhere((m) => m.code == code, orElse: () => cash);
 }
 
+class SaleSnapshot {
+  const SaleSnapshot(this.sale, this.articles, this.payments);
+  final Sale sale;
+  final List<SoldArticle> articles;
+  final List<Payment> payments;
+}
+
 class SoldArticle {
   const SoldArticle(this.articleId, this.quantity);
   final String articleId;
@@ -209,6 +216,78 @@ class LedgerRepository {
     await (db.update(db.payments)
           ..where((p) => p.saleId.equals(saleId) & p.deletedAt.isNull()))
         .write(PaymentsCompanion(deletedAt: Value(t), updatedAt: Value(t)));
+  });
+
+  /// Annule une suppression : la vente et les paiements supprimés en même temps reviennent.
+  Future<void> restoreSale(String saleId) => db.transaction(() async {
+    final sale = await (db.select(
+      db.sales,
+    )..where((s) => s.id.equals(saleId))).getSingleOrNull();
+    final at = sale?.deletedAt;
+    if (sale == null || at == null) return;
+    final t = now;
+    for (final line in await _linesOf(saleId)) {
+      await _shiftRemaining(line.articleId, -line.quantity);
+    }
+    await (db.update(db.sales)..where((s) => s.id.equals(saleId))).write(
+      SalesCompanion(deletedAt: const Value(null), updatedAt: Value(t)),
+    );
+    await (db.update(
+      db.payments,
+    )..where((p) => p.saleId.equals(saleId) & p.deletedAt.equals(at))).write(
+      PaymentsCompanion(deletedAt: const Value(null), updatedAt: Value(t)),
+    );
+  });
+
+  Future<void> restorePayment(String paymentId) async {
+    await (db.update(db.payments)..where((p) => p.id.equals(paymentId))).write(
+      PaymentsCompanion(deletedAt: const Value(null), updatedAt: Value(now)),
+    );
+  }
+
+  Future<void> setSalePhoto(String saleId, String? path) async {
+    await (db.update(db.sales)..where((s) => s.id.equals(saleId))).write(
+      SalesCompanion(photoPath: Value(path), updatedAt: Value(now)),
+    );
+  }
+
+  /// Photo d'une vente avant modification (pour "Annuler").
+  Future<SaleSnapshot> snapshot(String saleId) async {
+    final sale = await (db.select(
+      db.sales,
+    )..where((s) => s.id.equals(saleId))).getSingle();
+    final pays = await (db.select(
+      db.payments,
+    )..where((p) => p.saleId.equals(saleId))).get();
+    final lines = await _linesOf(saleId);
+    return SaleSnapshot(sale, [
+      for (final l in lines) SoldArticle(l.articleId, l.quantity),
+    ], pays);
+  }
+
+  Future<void> restoreSnapshot(SaleSnapshot snap) => db.transaction(() async {
+    await updateSale(
+      snap.sale.id,
+      personId: Value(snap.sale.personId),
+      articles: snap.articles,
+      soldAt: snap.sale.soldAt,
+    );
+    await (db.update(db.sales)..where((s) => s.id.equals(snap.sale.id))).write(
+      SalesCompanion(
+        amount: Value(snap.sale.amount),
+        photoPath: Value(snap.sale.photoPath),
+        updatedAt: Value(now),
+      ),
+    );
+    for (final p in snap.payments) {
+      await (db.update(db.payments)..where((x) => x.id.equals(p.id))).write(
+        PaymentsCompanion(
+          amount: Value(p.amount),
+          deletedAt: Value(p.deletedAt),
+          updatedAt: Value(now),
+        ),
+      );
+    }
   });
 
   Future<List<SaleArticle>> _linesOf(String saleId) =>
