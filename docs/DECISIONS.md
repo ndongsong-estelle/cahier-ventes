@@ -37,3 +37,9 @@
 - 2026-11-22 — T-06 — Garder un article depuis une photo : il est ajouté ×1 ; le montant prend son prix seulement s'il était à 0. Non merci : photo attachée à la vente
 - 2026-11-22 — T-06 — Boutons des fenêtres "Qui vous doit ?" et "Combien avez-vous reçu ?" : "Continuer" (mot déjà utilisé en C1) ; "Une partie" avec reçu >= montant = payé
 - 2026-11-22 — T-06 — Annuler (bandeau 5 s) supprime la vente (suppression douce), rétablit "il en reste" et efface la photo si plus rien ne l'utilise
+- 2026-11-22 — T-07 — GET /config (authentifié) avancé à T-07 sans questions : l'app en a besoin pour backup_enabled ; T-13 le complète
+- 2026-11-22 — T-07 — sha256 calculé sur data.json décompressé (le gzip n'est pas stable d'un envoi à l'autre) ; le serveur le revérifie après gzdecode
+- 2026-11-22 — T-07 — Copies sur un disque Laravel dédié 'backups' (storage/app/backups, serve=false) ; disque local passé à serve=false
+- 2026-11-22 — T-07 — Photos : chemins gardés dans data.json mais remis à null à la restauration si le fichier n'existe pas sur ce téléphone
+- 2026-11-22 — T-07 — Reconnexion de la même personne : cahier local envoyé si sa dernière modification (updated_at max) est plus récente que la copie du serveur, sinon restauration
+- 2026-11-22 — T-07 — Échec réseau pendant la récupération après connexion : on ouvre quand même Aujourd'hui, la copie sera retentée plus tard

@@ -39,7 +39,14 @@ typedef AfterLogin = Future<void> Function(
   required bool sameAccount,
 });
 
-final afterLoginProvider = Provider<AfterLogin?>((ref) => null);
+/// Après connexion : copie du serveur restaurée, ou cahier local envoyé s'il est plus récent.
+final afterLoginProvider = Provider<AfterLogin?>(
+  (ref) =>
+      (ref, {required sameAccount}) =>
+          ref.read(backupServiceProvider).afterLogin(sameAccount: sameAccount),
+);
+
+const restoringMessage = 'Récupération de votre cahier…';
 
 class SessionController extends Notifier<SessionState> {
   @override
@@ -114,7 +121,17 @@ class SessionController extends Notifier<SessionState> {
     await _settings.set(SettingKey.shopName, result.user.shopName);
 
     final hook = ref.read(afterLoginProvider);
-    if (hook != null) await hook(ref, sameAccount: previous == result.user.id);
+    if (hook != null) {
+      state = const SessionState(
+        SessionStatus.loading,
+        notice: restoringMessage,
+      );
+      try {
+        await hook(ref, sameAccount: previous == result.user.id);
+      } catch (_) {
+        // Sans réseau ou copie abîmée : on continue, la copie sera retentée plus tard.
+      }
+    }
 
     state = SessionState(
       SessionStatus.loggedIn,

@@ -54,7 +54,10 @@ GoRouter buildRouter({
       }
     },
     routes: [
-      GoRoute(path: Routes.loading, builder: (_, _) => const LoadingScreen()),
+      GoRoute(
+        path: Routes.loading,
+        builder: (_, _) => LoadingScreen(message: session().notice),
+      ),
       GoRoute(
         path: Routes.account,
         builder: (_, _) => const PhoneScreen(),

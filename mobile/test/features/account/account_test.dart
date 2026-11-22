@@ -1,4 +1,9 @@
 import 'package:cahier_ventes/core/auth/token_store.dart';
+import 'package:cahier_ventes/core/backup/cahier_file.dart';
+import 'package:cahier_ventes/core/db/database.dart';
+import 'package:cahier_ventes/core/db/ledger_repository.dart';
+import 'package:cahier_ventes/core/format/fcfa.dart';
+import 'package:drift/native.dart';
 import 'package:cahier_ventes/core/providers.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
@@ -255,5 +260,45 @@ void main() {
       'new_pin': '4826',
     });
     expect(find.text('Mes articles'), findsOneWidget);
+  });
+
+  testWidgets('après connexion : la copie du serveur est récupérée', (
+    tester,
+  ) async {
+    final env = TestEnv();
+    final other = AppDatabase(NativeDatabase.memory());
+    final file = await tester.runAsync(() async {
+      final l = LedgerRepository(other);
+      final p = await l.addPerson('Maman Ngo');
+      await l.addSale(amount: 15000, personId: p, paidNow: 5000);
+      return CahierFile.export(other);
+    });
+    await tester.runAsync(other.close);
+    env.server
+      ..on(
+        'POST /auth/check',
+        (_) => (200, {'exists': true, 'otp_required': false}),
+      )
+      ..on('POST /auth/login', (_) => (200, {'token': 't', 'user': userJson()}))
+      ..on(
+        'GET /backups/latest',
+        (_) => (
+          200,
+          {
+            'id': 'b1',
+            'created_at': DateTime.now().toUtc().toIso8601String(),
+            'sha256': file!.sha256Hex,
+          },
+        ),
+      )
+      ..on('GET /backups/b1/file', (_) => (200, file!.gz));
+    await env.pump(tester);
+    await enterPhone(tester, env);
+    for (final d in ['4', '8', '2', '6']) {
+      await tester.tap(find.text(d).last);
+    }
+    await settle(tester);
+    expect(find.text('Maman Ngo'), findsOneWidget);
+    expect(find.text(formatFcfa(15000)), findsWidgets);
   });
 }

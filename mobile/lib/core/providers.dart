@@ -5,11 +5,14 @@ import 'api/api_client.dart';
 import 'auth/auth_api.dart';
 import 'auth/session.dart';
 import 'auth/token_store.dart';
+import 'backup/backup_api.dart';
+import 'backup/backup_service.dart';
 import 'config/app_config.dart';
 import 'db/database.dart';
 import 'db/ledger_repository.dart';
 import 'db/settings_store.dart';
 import 'photos/photo_service.dart';
+import 'sync/sync_runner.dart';
 
 /// Remplacé dans les tests (NativeDatabase.memory()).
 final databaseProvider = Provider<AppDatabase>((ref) {
@@ -82,3 +85,35 @@ final ledgerChangesProvider = StreamProvider<int>((ref) async* {
 final photoServiceProvider = Provider<PhotoService>(
   (ref) => DevicePhotoService(),
 );
+
+final backupApiProvider = Provider<BackupApi>(
+  (ref) => HttpBackupApi(ref.watch(apiClientProvider)),
+);
+
+final backupServiceProvider = Provider<BackupService>(
+  (ref) =>
+      BackupService(ref.watch(databaseProvider), ref.watch(backupApiProvider)),
+);
+
+/// Étapes lancées à l'ouverture puis toutes les heures (T-13 y ajoute l'envoi des statistiques).
+final syncStepsProvider = Provider<List<SyncStep>>((ref) {
+  final api = ref.watch(apiClientProvider);
+  final settings = ref.watch(settingsStoreProvider);
+  final backup = ref.watch(backupServiceProvider);
+  return [
+    ({required onOpen}) async {
+      final c = await fetchConfig(api, settings);
+      final support = c['support_whatsapp'];
+      if (support is String) {
+        ref.read(supportWhatsappProvider.notifier).set(support);
+      }
+    },
+    ({required onOpen}) => backup.maybeSend(onOpen: onOpen),
+  ];
+});
+
+final syncRunnerProvider = Provider<SyncRunner>((ref) {
+  final runner = SyncRunner(ref.watch(syncStepsProvider));
+  ref.onDispose(runner.stop);
+  return runner;
+});

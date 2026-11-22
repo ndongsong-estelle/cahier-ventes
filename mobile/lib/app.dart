@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
 
 import 'core/auth/session.dart';
+import 'core/providers.dart';
 import 'core/router/router.dart';
 import 'core/theme/app_theme.dart';
 
@@ -20,8 +21,24 @@ class _CahierAppState extends ConsumerState<CahierApp> {
     refresh: _refresh,
   );
 
+  late final AppLifecycleListener _lifecycle = AppLifecycleListener(
+    onResume: () => ref.read(syncRunnerProvider).resumed(),
+  );
+
+  @override
+  void initState() {
+    super.initState();
+    _lifecycle;
+    Future.microtask(() {
+      if (mounted && ref.read(sessionProvider).isLoggedIn) {
+        ref.read(syncRunnerProvider).start();
+      }
+    });
+  }
+
   @override
   void dispose() {
+    _lifecycle.dispose();
     _router.dispose();
     _refresh.dispose();
     super.dispose();
@@ -29,7 +46,15 @@ class _CahierAppState extends ConsumerState<CahierApp> {
 
   @override
   Widget build(BuildContext context) {
-    ref.listen(sessionProvider, (_, _) => _refresh.value++);
+    ref.listen(sessionProvider, (before, now) {
+      _refresh.value++;
+      if (now.isLoggedIn && before?.isLoggedIn != true) {
+        ref.read(syncRunnerProvider).start();
+      }
+      if (!now.isLoggedIn && before?.isLoggedIn == true) {
+        ref.read(syncRunnerProvider).stop();
+      }
+    });
     return MaterialApp.router(
       title: 'Cahier de ventes',
       debugShowCheckedModeBanner: false,

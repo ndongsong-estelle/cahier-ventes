@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Auth\OtpController;
+use App\Http\Controllers\BackupController;
+use App\Http\Controllers\ConfigController;
 use App\Http\Controllers\MeController;
 use Illuminate\Support\Facades\Route;
 
@@ -20,4 +22,8 @@ Route::middleware(['auth:sanctum', 'touch.device', 'throttle:user'])->group(func
     Route::get('me', [MeController::class, 'show']);
     Route::patch('me', [MeController::class, 'update']);
     Route::delete('me', [MeController::class, 'destroy']);
+    Route::get('config', [ConfigController::class, 'show']);
+    Route::post('backups', [BackupController::class, 'store']);
+    Route::get('backups/latest', [BackupController::class, 'latest']);
+    Route::get('backups/{id}/file', [BackupController::class, 'file']);
 });

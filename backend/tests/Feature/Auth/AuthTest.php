@@ -134,9 +134,9 @@ it('se déconnecte', function () {
 });
 
 it('supprime complètement le compte', function () {
-    Storage::fake('local');
+    Storage::fake('backups');
     [$user, $token] = account();
-    Storage::disk('local')->put("backups/{$user->id}/x.json", '{}');
+    Storage::disk('backups')->put("{$user->id}/x.json", '{}');
 
     $this->withToken($token)->deleteJson('/api/me', ['pin' => '0000'])->assertStatus(422);
     $this->withToken($token)->deleteJson('/api/me', ['pin' => '4826'])->assertOk()->assertJson(['deleted' => true]);
@@ -144,7 +144,7 @@ it('supprime complètement le compte', function () {
     expect(User::count())->toBe(0)
         ->and(Device::count())->toBe(0)
         ->and(PersonalAccessToken::count())->toBe(0);
-    Storage::disk('local')->assertMissing("backups/{$user->id}");
+    Storage::disk('backups')->assertMissing("{$user->id}");
 });
 
 it('met à jour last_seen_at du téléphone', function () {

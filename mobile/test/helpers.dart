@@ -5,6 +5,7 @@ import 'package:cahier_ventes/app.dart';
 import 'package:cahier_ventes/core/auth/token_store.dart';
 import 'package:cahier_ventes/core/db/database.dart';
 import 'package:cahier_ventes/core/providers.dart';
+import 'package:cahier_ventes/core/sync/sync_runner.dart';
 import 'package:dio/dio.dart';
 import 'package:drift/drift.dart' show DatabaseConnection, driftRuntimeOptions;
 import 'package:drift/native.dart';
@@ -14,7 +15,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart'
     show ButtonStyleButton, FlutterError, Size;
 
-typedef Handler = (int, Map<String, dynamic>) Function(RequestOptions r);
+typedef Handler = (int, Object) Function(RequestOptions r);
 
 /// Faux serveur : une réponse par "METHODE /chemin".
 class FakeServer implements HttpClientAdapter {
@@ -48,11 +49,20 @@ class FakeServer implements HttpClientAdapter {
     final key = '${options.method} ${options.path}';
     final h = routes[key];
     final (status, body) = h == null
-        ? (404, {'message': 'absent'})
+        ? (404, <String, dynamic>{'message': 'absent'})
         : h(options);
+    if (body is List<int>) {
+      return ResponseBody.fromBytes(
+        body,
+        status,
+        headers: {
+          Headers.contentTypeHeader: ['application/gzip'],
+        },
+      );
+    }
     return ResponseBody.fromString(
       jsonEncode({
-        ...body,
+        ...body as Map,
         'server_time': DateTime.now().toUtc().toIso8601String(),
       }),
       status,
@@ -84,6 +94,7 @@ class TestEnv {
     databaseProvider.overrideWithValue(db),
     tokenStoreProvider.overrideWithValue(tokens),
     httpAdapterProvider.overrideWithValue(server),
+    syncRunnerProvider.overrideWithValue(NoopSyncRunner()),
   ];
 
   late ProviderContainer container;
@@ -161,4 +172,15 @@ List<String> Function() smallPhone(WidgetTester tester) {
     FlutterError.onError = old;
     return errors;
   };
+}
+
+/// Pas d'envoi automatique ni de minuterie pendant les tests d'écrans.
+class NoopSyncRunner extends SyncRunner {
+  NoopSyncRunner() : super(const []);
+
+  @override
+  void start() {}
+
+  @override
+  void resumed() {}
 }

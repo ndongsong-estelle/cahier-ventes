@@ -25,11 +25,11 @@ class AccountDeleter
             $user->delete();
         });
 
-        Storage::disk('local')->deleteDirectory(self::backupDirectory($user->id));
+        Storage::disk('backups')->deleteDirectory(self::backupDirectory($user->id));
     }
 
     public static function backupDirectory(int $userId): string
     {
-        return "backups/{$userId}";
+        return (string) $userId;
     }
 }
