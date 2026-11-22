@@ -13,7 +13,7 @@ class SellButton extends StatelessWidget {
     return SizedBox(
       height: 68,
       child: FloatingActionButton.extended(
-        heroTag: 'sell',
+        heroTag: null,
         backgroundColor: AppColors.green,
         foregroundColor: Colors.white,
         onPressed: () => context.push(Routes.sell),

@@ -13,6 +13,7 @@ import 'db/ledger_repository.dart';
 import 'db/settings_store.dart';
 import 'photos/photo_service.dart';
 import 'sync/sync_runner.dart';
+import 'ui/contact.dart';
 
 /// Remplacé dans les tests (NativeDatabase.memory()).
 final databaseProvider = Provider<AppDatabase>((ref) {
@@ -117,3 +118,6 @@ final syncRunnerProvider = Provider<SyncRunner>((ref) {
   ref.onDispose(runner.stop);
   return runner;
 });
+
+/// Ouvre WhatsApp, le téléphone, une page web. Remplacé dans les tests.
+final urlOpenerProvider = Provider<UrlOpener>((ref) => openExternal);

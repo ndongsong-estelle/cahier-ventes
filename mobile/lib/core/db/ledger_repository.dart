@@ -290,6 +290,21 @@ class LedgerRepository {
     }
   });
 
+  /// Annule "{Nom} a payé" : supprime les paiements ajoutés depuis ces photos.
+  Future<void> removePaymentsAfter(List<SaleSnapshot> before) async {
+    final t = now;
+    for (final snap in before) {
+      final known = snap.payments.map((p) => p.id).toList();
+      await (db.update(db.payments)..where(
+            (p) =>
+                p.saleId.equals(snap.sale.id) &
+                p.id.isNotIn(known) &
+                p.deletedAt.isNull(),
+          ))
+          .write(PaymentsCompanion(deletedAt: Value(t), updatedAt: Value(t)));
+    }
+  }
+
   Future<List<SaleArticle>> _linesOf(String saleId) =>
       (db.select(db.saleArticles)..where((l) => l.saleId.equals(saleId))).get();
 

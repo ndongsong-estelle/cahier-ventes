@@ -46,3 +46,7 @@
 - 2026-11-22 — T-08 — Modifier : J'ai vendu prérempli avec un seul bouton "Garder" (montant, articles, nom, photo) ; les paiements se corrigent dans le détail (ajout "{Nom} a payé", suppression avec confirmation)
 - 2026-11-22 — T-08 — Annuler après modification remet la vente exactement comme avant (montant, articles, personne, paiements) ; après suppression, la vente et ses paiements reviennent
 - 2026-11-22 — T-08 — Vente sans nom avec un reste : le bouton s'appelle "Payé" au lieu de "{Nom} a payé"
+- 2026-11-22 — T-09 — "{Nom} a payé" plus que ce qui est dû : message "{Nom} ne vous doit que X F." et bouton désactivé (rien n'est enregistré)
+- 2026-11-22 — T-09 — Saisie d'un montant (a payé, une partie) en plein écran : la fenêtre ne tenait pas sur 640 dp avec le pavé
+- 2026-11-22 — T-09 — Message de relance : formatFcfa inclut déjà "F" ("Il reste 25 000 F à régler"), pas de "F F"
+- 2026-11-22 — T-09 — Boutons "J'ai vendu" sans animation Hero (deux boutons identiques dans les onglets gardés en mémoire faisaient planter la navigation)

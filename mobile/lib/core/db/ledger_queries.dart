@@ -270,3 +270,74 @@ extension DetailQueries on LedgerRepository {
     );
   }
 }
+
+class PersonDebt {
+  const PersonDebt({
+    required this.person,
+    required this.owed,
+    required this.days,
+    this.unpaid = const [],
+  });
+  final Person person;
+  final int owed;
+
+  /// "depuis N jours" (null si plus rien n'est dû).
+  final int? days;
+
+  /// Ventes avec un reste, de la plus ancienne à la plus récente.
+  final List<SaleItem> unpaid;
+}
+
+class DebtsSummary {
+  const DebtsSummary(this.total, this.people);
+  final int total;
+  final List<PersonDebt> people;
+}
+
+extension DebtQueries on LedgerRepository {
+  /// On me doit : personnes qui doivent, du plus gros montant au plus petit.
+  Future<DebtsSummary> debts() async {
+    final lines = (await saleLines()).where((l) => l.personId != null).toList();
+    final byPerson = <String, List<SaleLine>>{};
+    for (final l in lines) {
+      byPerson.putIfAbsent(l.personId!, () => []).add(l);
+    }
+    final people = {
+      for (final p in await (db.select(
+        db.people,
+      )..where((p) => p.id.isIn(byPerson.keys))).get())
+        p.id: p,
+    };
+    final list = <PersonDebt>[];
+    for (final e in byPerson.entries) {
+      final owed = owedBy(e.value);
+      final person = people[e.key];
+      if (owed <= 0 || person == null) continue;
+      list.add(
+        PersonDebt(
+          person: person,
+          owed: owed,
+          days: daysSinceOldestUnpaid(e.value, now),
+        ),
+      );
+    }
+    list.sort((a, b) => b.owed.compareTo(a.owed));
+    return DebtsSummary(totalOwed(lines), list);
+  }
+
+  Future<PersonDebt?> personDebt(String personId) async {
+    final person = await (db.select(
+      db.people,
+    )..where((p) => p.id.equals(personId))).getSingleOrNull();
+    if (person == null) return null;
+    final lines = await saleLines(personId: personId);
+    final open = lines.where((l) => remaining(l) > 0).toList()
+      ..sort((a, b) => a.soldAt.compareTo(b.soldAt));
+    return PersonDebt(
+      person: person,
+      owed: owedBy(lines),
+      days: daysSinceOldestUnpaid(lines, now),
+      unpaid: await saleItems(open),
+    );
+  }
+}

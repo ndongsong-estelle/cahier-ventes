@@ -59,6 +59,7 @@ class _Detail extends ConsumerWidget {
         context,
         title: name == null ? 'Payé' : '$name a payé',
         rest: d.rest,
+        personName: name,
       );
       if (input == null) return;
       await ledger.addPayment(d.sale.id, input.amount, method: input.method);

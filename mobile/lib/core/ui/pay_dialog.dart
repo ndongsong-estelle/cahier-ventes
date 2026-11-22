@@ -3,7 +3,7 @@ import 'package:material_ui/material_ui.dart';
 import '../db/ledger_repository.dart';
 import '../format/fcfa.dart';
 import '../theme/app_theme.dart';
-import 'amount_pad.dart';
+import 'amount_dialog.dart';
 
 class PaymentInput {
   const PaymentInput(this.amount, this.method);
@@ -12,81 +12,26 @@ class PaymentInput {
 }
 
 /// "{Nom} a payé" : pavé prérempli avec le reste + moyen (Espèces par défaut).
+/// Montant trop grand : "{Nom} ne vous doit que X F." et bouton désactivé.
 Future<PaymentInput?> askPayment(
   BuildContext context, {
   required String title,
   required int rest,
-}) {
-  var value = rest;
-  var method = PayMethod.cash;
-  return showDialog<PaymentInput>(
-    context: context,
-    builder: (context) => StatefulBuilder(
-      builder: (context, setState) => AlertDialog(
-        title: Text(title),
-        content: SizedBox(
-          width: 340,
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                FittedBox(
-                  child: Text(
-                    formatFcfa(value),
-                    key: const Key('pay-amount'),
-                    style: const TextStyle(
-                      fontSize: 44,
-                      fontWeight: FontWeight.w800,
-                      color: AppColors.green,
-                    ),
-                  ),
-                ),
-                Text(
-                  'On vous doit ${formatFcfa(rest)}',
-                  style: const TextStyle(fontSize: 18, color: AppColors.muted),
-                ),
-                const SizedBox(height: 8),
-                Wrap(
-                  spacing: 6,
-                  alignment: WrapAlignment.center,
-                  children: [
-                    for (final m in PayMethod.values)
-                      ChoiceChip(
-                        label: Text(
-                          m.label,
-                          style: const TextStyle(fontSize: 17),
-                        ),
-                        selected: method == m,
-                        onSelected: (_) => setState(() => method = m),
-                      ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                AmountPad(
-                  value: value,
-                  keyHeight: 50,
-                  onChanged: (v) => setState(() => value = v),
-                ),
-              ],
-            ),
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Annuler'),
-          ),
-          FilledButton.icon(
-            onPressed: value <= 0
-                ? null
-                : () => Navigator.of(context).pop(PaymentInput(value, method)),
-            icon: const Icon(Icons.check),
-            label: const Text('Payé'),
-          ),
-        ],
-      ),
-    ),
+  String? personName,
+}) async {
+  final r = await showAmountDialog(
+    context,
+    title: title,
+    initial: rest,
+    buttonLabel: 'Payé',
+    hint: 'On vous doit ${formatFcfa(rest)}',
+    max: rest,
+    tooMuch: (max) => personName == null
+        ? 'On ne vous doit que ${formatFcfa(max)}.'
+        : '$personName ne vous doit que ${formatFcfa(max)}.',
+    askMethod: true,
   );
+  return r == null ? null : PaymentInput(r.$1, r.$2);
 }
 
 /// Confirmation avant de supprimer : [Garder] [Supprimer].

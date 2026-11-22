@@ -138,14 +138,14 @@ void main() {
     await settle(tester);
     expect(find.text('Combien avez-vous reçu ?'), findsOneWidget);
     final dialogKey = find.descendant(
-      of: find.byType(AlertDialog),
+      of: find.byType(Dialog),
       matching: find.widgetWithText(OutlinedButton, '3'),
     );
     await tester.tap(dialogKey);
     await tester.pump();
     await tester.tap(
       find.descendant(
-        of: find.byType(AlertDialog),
+        of: find.byType(Dialog),
         matching: find.widgetWithText(OutlinedButton, '000'),
       ),
     );
@@ -155,7 +155,7 @@ void main() {
     expect(find.text('Qui vous doit ?'), findsOneWidget);
     await tester.tap(
       find.descendant(
-        of: find.byType(AlertDialog),
+        of: find.byType(Dialog),
         matching: find.widgetWithText(ActionChip, 'Maman Ngo'),
       ),
     );

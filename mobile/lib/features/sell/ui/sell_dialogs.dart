@@ -3,7 +3,7 @@ import 'package:material_ui/material_ui.dart';
 import '../../../core/db/database.dart';
 import '../../../core/format/fcfa.dart';
 import '../../../core/theme/app_theme.dart';
-import '../../../core/ui/amount_pad.dart';
+import '../../../core/ui/amount_dialog.dart';
 import '../../../core/ui/sale_tile.dart';
 
 /// "Qui vous doit ?" : suggestions + saisie. Renvoie le nom ou null.
@@ -74,57 +74,16 @@ Future<String?> askWhoOwes(BuildContext context, List<Person> people) {
 }
 
 /// "Combien avez-vous reçu ?" : pavé. Renvoie le montant ou null.
-Future<int?> askReceived(BuildContext context, int total) {
-  var value = 0;
-  return showDialog<int>(
-    context: context,
-    builder: (context) => StatefulBuilder(
-      builder: (context, setState) => AlertDialog(
-        title: const Text('Combien avez-vous reçu ?'),
-        content: SizedBox(
-          width: 320,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              FittedBox(
-                child: Text(
-                  formatFcfa(value),
-                  style: const TextStyle(
-                    fontSize: 44,
-                    fontWeight: FontWeight.w800,
-                    color: AppColors.orangeText,
-                  ),
-                ),
-              ),
-              Text(
-                'sur ${formatFcfa(total)}',
-                style: const TextStyle(fontSize: 18, color: AppColors.muted),
-              ),
-              const SizedBox(height: 8),
-              AmountPad(
-                value: value,
-                keyHeight: 52,
-                onChanged: (v) => setState(() => value = v),
-              ),
-            ],
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Annuler'),
-          ),
-          FilledButton.icon(
-            onPressed: value == 0
-                ? null
-                : () => Navigator.of(context).pop(value),
-            icon: const Icon(Icons.check),
-            label: const Text('Continuer'),
-          ),
-        ],
-      ),
-    ),
+Future<int?> askReceived(BuildContext context, int total) async {
+  final r = await showAmountDialog(
+    context,
+    title: 'Combien avez-vous reçu ?',
+    initial: 0,
+    buttonLabel: 'Continuer',
+    hint: 'sur ${formatFcfa(total)}',
+    color: AppColors.orangeText,
   );
+  return r?.$1;
 }
 
 class KeepArticle {
