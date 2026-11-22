@@ -64,7 +64,7 @@ it('verrouille 15 minutes après 5 mauvais codes', function () {
     $bad = ['phone' => '690123456', 'pin' => '9999', 'device' => device()];
 
     foreach (range(1, 4) as $i) {
-        $this->postJson('/api/auth/login', $bad)->assertStatus(401)->assertJsonPath('attempts_left', 5 - $i);
+        $this->postJson('/api/auth/login', $bad)->assertStatus(422)->assertJsonPath('attempts_left', 5 - $i);
     }
     $this->postJson('/api/auth/login', $bad)->assertStatus(423)->assertJsonPath('code', 'locked');
     // Même le bon code est refusé pendant le verrouillage
@@ -119,7 +119,7 @@ it('change le code secret et le nom de la boutique', function () {
     $this->withToken($token)->postJson('/api/auth/pin', ['current_pin' => '4826', 'new_pin' => '1111'])
         ->assertStatus(422);
     $this->withToken($token)->postJson('/api/auth/pin', ['current_pin' => '0000', 'new_pin' => '7391'])
-        ->assertStatus(401);
+        ->assertStatus(422)->assertJsonPath('code', 'wrong_pin');
     $this->withToken($token)->postJson('/api/auth/pin', ['current_pin' => '4826', 'new_pin' => '7391'])
         ->assertOk();
     $this->withToken($token)->patchJson('/api/me', ['shop_name' => 'Nouvelle boutique'])
@@ -138,7 +138,7 @@ it('supprime complètement le compte', function () {
     [$user, $token] = account();
     Storage::disk('local')->put("backups/{$user->id}/x.json", '{}');
 
-    $this->withToken($token)->deleteJson('/api/me', ['pin' => '0000'])->assertStatus(401);
+    $this->withToken($token)->deleteJson('/api/me', ['pin' => '0000'])->assertStatus(422);
     $this->withToken($token)->deleteJson('/api/me', ['pin' => '4826'])->assertOk()->assertJson(['deleted' => true]);
 
     expect(User::count())->toBe(0)

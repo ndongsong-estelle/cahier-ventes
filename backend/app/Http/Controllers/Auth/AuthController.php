@@ -181,7 +181,7 @@ class AuthController extends Controller
             'code' => 'wrong_pin',
             'message' => "Ce n'est pas le bon code secret.",
             'attempts_left' => config('pilote.pin_max_attempts') - $attempts,
-        ], 401);
+        ], 422);
     }
 
     private static function locked(User $user): JsonResponse

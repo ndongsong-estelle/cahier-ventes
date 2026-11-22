@@ -24,3 +24,8 @@
 - 2026-11-22 — T-03 — "{Nom} a payé X" plus grand que ce qui est dû : seul le dû est enregistré, le surplus est rendu à l'écran (pas de crédit d'avance)
 - 2026-11-22 — T-03 — Montant réduit sous le reçu : on réduit le dernier paiement, puis le précédent si besoin (paiement à 0 = supprimé)
 - 2026-11-22 — T-03 — Suppressions douces (deleted_at) partout ; "il en reste" peut devenir négatif (jamais de blocage), affiché Épuisé
+- 2026-11-22 — T-04 — Mauvais code secret = 422 wrong_pin (et non 401) : 401 est réservé à « compte ouvert sur un autre téléphone »
+- 2026-11-22 — T-04 — C2 : champs code secret avec le pavé numérique du téléphone (3 champs sur un écran) ; C3 : grand pavé dans l'app avec 4 cases
+- 2026-11-22 — T-04 — Code oublié sans SMS : lien WhatsApp (numéro de /config, sinon --dart-define SUPPORT_WHATSAPP) avec un message prérempli
+- 2026-11-22 — T-04 — Modèle du téléphone non envoyé (null) : device_info_plus n'est pas dans la liste des paquets ; version Android = Platform.operatingSystemVersion
+- 2026-11-22 — T-04 — Se déconnecter garde le cahier sur le téléphone ; il n'est effacé que si un autre compte se connecte ensuite
