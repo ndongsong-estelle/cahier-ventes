@@ -29,3 +29,6 @@
 - 2026-11-22 — T-04 — Code oublié sans SMS : lien WhatsApp (numéro de /config, sinon --dart-define SUPPORT_WHATSAPP) avec un message prérempli
 - 2026-11-22 — T-04 — Modèle du téléphone non envoyé (null) : device_info_plus n'est pas dans la liste des paquets ; version Android = Platform.operatingSystemVersion
 - 2026-11-22 — T-04 — Se déconnecter garde le cahier sur le téléphone ; il n'est effacé que si un autre compte se connecte ensuite
+- 2026-11-22 — T-05 — Sur Aujourd'hui, "On vous doit" = restes des ventes du jour ; "Reçu" = tous les paiements du jour (même pour d'anciennes ventes), comme docs/02
+- 2026-11-22 — T-05 — Ligne de vente : partiel = pastille orange "Doit X", rien payé = rouge "Doit X", soldé = vert "Payé" ; titre = personne, sinon premier article, sinon "Vente"
+- 2026-11-22 — T-05 — Pas de navigation vers les jours futurs ; dates en français écrites à la main (pas d'initialisation intl)

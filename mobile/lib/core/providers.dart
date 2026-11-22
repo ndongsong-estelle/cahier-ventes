@@ -67,3 +67,12 @@ final supportWhatsappProvider =
     NotifierProvider<ValueController<String?>, String?>(
       () => ValueController<String?>(null),
     );
+
+/// Signale toute écriture dans le cahier : les écrans se recalculent.
+final ledgerChangesProvider = StreamProvider<int>((ref) async* {
+  var n = 0;
+  yield n;
+  await for (final _ in ref.watch(databaseProvider).tableUpdates()) {
+    yield ++n;
+  }
+});

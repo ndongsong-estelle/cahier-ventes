@@ -217,7 +217,7 @@ class SettingsCompanion extends UpdateCompanion<Setting> {
   }
 }
 
-class $PeopleTable extends People with TableInfo<$PeopleTable, PeopleData> {
+class $PeopleTable extends People with TableInfo<$PeopleTable, Person> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
@@ -298,7 +298,7 @@ class $PeopleTable extends People with TableInfo<$PeopleTable, PeopleData> {
   static const String $name = 'people';
   @override
   VerificationContext validateIntegrity(
-    Insertable<PeopleData> instance, {
+    Insertable<Person> instance, {
     bool isInserting = false,
   }) {
     final context = VerificationContext();
@@ -350,9 +350,9 @@ class $PeopleTable extends People with TableInfo<$PeopleTable, PeopleData> {
   @override
   Set<GeneratedColumn> get $primaryKey => {id};
   @override
-  PeopleData map(Map<String, dynamic> data, {String? tablePrefix}) {
+  Person map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return PeopleData(
+    return Person(
       id: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}id'],
@@ -386,14 +386,14 @@ class $PeopleTable extends People with TableInfo<$PeopleTable, PeopleData> {
   }
 }
 
-class PeopleData extends DataClass implements Insertable<PeopleData> {
+class Person extends DataClass implements Insertable<Person> {
   final String id;
   final String name;
   final String? phone;
   final DateTime createdAt;
   final DateTime updatedAt;
   final DateTime? deletedAt;
-  const PeopleData({
+  const Person({
     required this.id,
     required this.name,
     this.phone,
@@ -432,12 +432,12 @@ class PeopleData extends DataClass implements Insertable<PeopleData> {
     );
   }
 
-  factory PeopleData.fromJson(
+  factory Person.fromJson(
     Map<String, dynamic> json, {
     ValueSerializer? serializer,
   }) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
-    return PeopleData(
+    return Person(
       id: serializer.fromJson<String>(json['id']),
       name: serializer.fromJson<String>(json['name']),
       phone: serializer.fromJson<String?>(json['phone']),
@@ -459,14 +459,14 @@ class PeopleData extends DataClass implements Insertable<PeopleData> {
     };
   }
 
-  PeopleData copyWith({
+  Person copyWith({
     String? id,
     String? name,
     Value<String?> phone = const Value.absent(),
     DateTime? createdAt,
     DateTime? updatedAt,
     Value<DateTime?> deletedAt = const Value.absent(),
-  }) => PeopleData(
+  }) => Person(
     id: id ?? this.id,
     name: name ?? this.name,
     phone: phone.present ? phone.value : this.phone,
@@ -474,8 +474,8 @@ class PeopleData extends DataClass implements Insertable<PeopleData> {
     updatedAt: updatedAt ?? this.updatedAt,
     deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
   );
-  PeopleData copyWithCompanion(PeopleCompanion data) {
-    return PeopleData(
+  Person copyWithCompanion(PeopleCompanion data) {
+    return Person(
       id: data.id.present ? data.id.value : this.id,
       name: data.name.present ? data.name.value : this.name,
       phone: data.phone.present ? data.phone.value : this.phone,
@@ -487,7 +487,7 @@ class PeopleData extends DataClass implements Insertable<PeopleData> {
 
   @override
   String toString() {
-    return (StringBuffer('PeopleData(')
+    return (StringBuffer('Person(')
           ..write('id: $id, ')
           ..write('name: $name, ')
           ..write('phone: $phone, ')
@@ -504,7 +504,7 @@ class PeopleData extends DataClass implements Insertable<PeopleData> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is PeopleData &&
+      (other is Person &&
           other.id == this.id &&
           other.name == this.name &&
           other.phone == this.phone &&
@@ -513,7 +513,7 @@ class PeopleData extends DataClass implements Insertable<PeopleData> {
           other.deletedAt == this.deletedAt);
 }
 
-class PeopleCompanion extends UpdateCompanion<PeopleData> {
+class PeopleCompanion extends UpdateCompanion<Person> {
   final Value<String> id;
   final Value<String> name;
   final Value<String?> phone;
@@ -542,7 +542,7 @@ class PeopleCompanion extends UpdateCompanion<PeopleData> {
        name = Value(name),
        createdAt = Value(createdAt),
        updatedAt = Value(updatedAt);
-  static Insertable<PeopleData> custom({
+  static Insertable<Person> custom({
     Expression<String>? id,
     Expression<String>? name,
     Expression<String>? phone,
@@ -2516,7 +2516,7 @@ class PaymentsCompanion extends UpdateCompanion<Payment> {
   }
 }
 
-class $OutboxTable extends Outbox with TableInfo<$OutboxTable, OutboxData> {
+class $OutboxTable extends Outbox with TableInfo<$OutboxTable, OutboxItem> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
@@ -2570,7 +2570,7 @@ class $OutboxTable extends Outbox with TableInfo<$OutboxTable, OutboxData> {
   static const String $name = 'outbox';
   @override
   VerificationContext validateIntegrity(
-    Insertable<OutboxData> instance, {
+    Insertable<OutboxItem> instance, {
     bool isInserting = false,
   }) {
     final context = VerificationContext();
@@ -2610,9 +2610,9 @@ class $OutboxTable extends Outbox with TableInfo<$OutboxTable, OutboxData> {
   @override
   Set<GeneratedColumn> get $primaryKey => {id};
   @override
-  OutboxData map(Map<String, dynamic> data, {String? tablePrefix}) {
+  OutboxItem map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return OutboxData(
+    return OutboxItem(
       id: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}id'],
@@ -2638,12 +2638,12 @@ class $OutboxTable extends Outbox with TableInfo<$OutboxTable, OutboxData> {
   }
 }
 
-class OutboxData extends DataClass implements Insertable<OutboxData> {
+class OutboxItem extends DataClass implements Insertable<OutboxItem> {
   final String id;
   final String kind;
   final String payload;
   final DateTime createdAt;
-  const OutboxData({
+  const OutboxItem({
     required this.id,
     required this.kind,
     required this.payload,
@@ -2668,12 +2668,12 @@ class OutboxData extends DataClass implements Insertable<OutboxData> {
     );
   }
 
-  factory OutboxData.fromJson(
+  factory OutboxItem.fromJson(
     Map<String, dynamic> json, {
     ValueSerializer? serializer,
   }) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
-    return OutboxData(
+    return OutboxItem(
       id: serializer.fromJson<String>(json['id']),
       kind: serializer.fromJson<String>(json['kind']),
       payload: serializer.fromJson<String>(json['payload']),
@@ -2691,19 +2691,19 @@ class OutboxData extends DataClass implements Insertable<OutboxData> {
     };
   }
 
-  OutboxData copyWith({
+  OutboxItem copyWith({
     String? id,
     String? kind,
     String? payload,
     DateTime? createdAt,
-  }) => OutboxData(
+  }) => OutboxItem(
     id: id ?? this.id,
     kind: kind ?? this.kind,
     payload: payload ?? this.payload,
     createdAt: createdAt ?? this.createdAt,
   );
-  OutboxData copyWithCompanion(OutboxCompanion data) {
-    return OutboxData(
+  OutboxItem copyWithCompanion(OutboxCompanion data) {
+    return OutboxItem(
       id: data.id.present ? data.id.value : this.id,
       kind: data.kind.present ? data.kind.value : this.kind,
       payload: data.payload.present ? data.payload.value : this.payload,
@@ -2713,7 +2713,7 @@ class OutboxData extends DataClass implements Insertable<OutboxData> {
 
   @override
   String toString() {
-    return (StringBuffer('OutboxData(')
+    return (StringBuffer('OutboxItem(')
           ..write('id: $id, ')
           ..write('kind: $kind, ')
           ..write('payload: $payload, ')
@@ -2727,14 +2727,14 @@ class OutboxData extends DataClass implements Insertable<OutboxData> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is OutboxData &&
+      (other is OutboxItem &&
           other.id == this.id &&
           other.kind == this.kind &&
           other.payload == this.payload &&
           other.createdAt == this.createdAt);
 }
 
-class OutboxCompanion extends UpdateCompanion<OutboxData> {
+class OutboxCompanion extends UpdateCompanion<OutboxItem> {
   final Value<String> id;
   final Value<String> kind;
   final Value<String> payload;
@@ -2757,7 +2757,7 @@ class OutboxCompanion extends UpdateCompanion<OutboxData> {
        kind = Value(kind),
        payload = Value(payload),
        createdAt = Value(createdAt);
-  static Insertable<OutboxData> custom({
+  static Insertable<OutboxItem> custom({
     Expression<String>? id,
     Expression<String>? kind,
     Expression<String>? payload,
@@ -3002,7 +3002,7 @@ typedef $$PeopleTableUpdateCompanionBuilder = PeopleCompanion Function({
 });
 
 final class $$PeopleTableReferences
-    extends BaseReferences<_$AppDatabase, $PeopleTable, PeopleData> {
+    extends BaseReferences<_$AppDatabase, $PeopleTable, Person> {
   $$PeopleTableReferences(super.$_db, super.$_table, super.$_typedResult);
 
   static MultiTypedResultKey<$SalesTable, List<Sale>> _salesRefsTable(
@@ -3188,14 +3188,14 @@ class $$PeopleTableTableManager
         RootTableManager<
           _$AppDatabase,
           $PeopleTable,
-          PeopleData,
+          Person,
           $$PeopleTableFilterComposer,
           $$PeopleTableOrderingComposer,
           $$PeopleTableAnnotationComposer,
           $$PeopleTableCreateCompanionBuilder,
           $$PeopleTableUpdateCompanionBuilder,
-          (PeopleData, $$PeopleTableReferences),
-          PeopleData,
+          (Person, $$PeopleTableReferences),
+          Person,
           PrefetchHooks Function({bool salesRefs})
         > {
   $$PeopleTableTableManager(_$AppDatabase db, $PeopleTable table)
@@ -3248,7 +3248,7 @@ class $$PeopleTableTableManager
           withReferenceMapper: (p0) => p0
               .map(
                 (e) => (
-                  e.readTable<$PeopleTable, PeopleData>(table),
+                  e.readTable<$PeopleTable, Person>(table),
                   $$PeopleTableReferences(db, table, e),
                 ),
               )
@@ -3262,7 +3262,7 @@ class $$PeopleTableTableManager
                 return [
                   if (salesRefs)
                     await $_getPrefetchedDataByColumns<
-                      PeopleData,
+                      Person,
                       $PeopleTable,
                       Sale,
                       $SalesTable
@@ -3289,14 +3289,14 @@ typedef $$PeopleTableProcessedTableManager =
     ProcessedTableManager<
       _$AppDatabase,
       $PeopleTable,
-      PeopleData,
+      Person,
       $$PeopleTableFilterComposer,
       $$PeopleTableOrderingComposer,
       $$PeopleTableAnnotationComposer,
       $$PeopleTableCreateCompanionBuilder,
       $$PeopleTableUpdateCompanionBuilder,
-      (PeopleData, $$PeopleTableReferences),
-      PeopleData,
+      (Person, $$PeopleTableReferences),
+      Person,
       PrefetchHooks Function({bool salesRefs})
     >;
 typedef $$ArticlesTableCreateCompanionBuilder = ArticlesCompanion Function({
@@ -5090,14 +5090,14 @@ class $$OutboxTableTableManager
         RootTableManager<
           _$AppDatabase,
           $OutboxTable,
-          OutboxData,
+          OutboxItem,
           $$OutboxTableFilterComposer,
           $$OutboxTableOrderingComposer,
           $$OutboxTableAnnotationComposer,
           $$OutboxTableCreateCompanionBuilder,
           $$OutboxTableUpdateCompanionBuilder,
-          (OutboxData, BaseReferences<_$AppDatabase, $OutboxTable, OutboxData>),
-          OutboxData,
+          (OutboxItem, BaseReferences<_$AppDatabase, $OutboxTable, OutboxItem>),
+          OutboxItem,
           PrefetchHooks Function()
         > {
   $$OutboxTableTableManager(_$AppDatabase db, $OutboxTable table)
@@ -5142,8 +5142,8 @@ class $$OutboxTableTableManager
           withReferenceMapper: (p0) => p0
               .map(
                 (e) => (
-                  e.readTable<$OutboxTable, OutboxData>(table),
-                  BaseReferences<_$AppDatabase, $OutboxTable, OutboxData>(
+                  e.readTable<$OutboxTable, OutboxItem>(table),
+                  BaseReferences<_$AppDatabase, $OutboxTable, OutboxItem>(
                     db,
                     table,
                     e,
@@ -5160,14 +5160,14 @@ typedef $$OutboxTableProcessedTableManager =
     ProcessedTableManager<
       _$AppDatabase,
       $OutboxTable,
-      OutboxData,
+      OutboxItem,
       $$OutboxTableFilterComposer,
       $$OutboxTableOrderingComposer,
       $$OutboxTableAnnotationComposer,
       $$OutboxTableCreateCompanionBuilder,
       $$OutboxTableUpdateCompanionBuilder,
-      (OutboxData, BaseReferences<_$AppDatabase, $OutboxTable, OutboxData>),
-      OutboxData,
+      (OutboxItem, BaseReferences<_$AppDatabase, $OutboxTable, OutboxItem>),
+      OutboxItem,
       PrefetchHooks Function()
     >;
 

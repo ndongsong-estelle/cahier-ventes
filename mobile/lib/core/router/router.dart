@@ -24,6 +24,9 @@ abstract final class Routes {
   static const debts = '/on-me-doit';
   static const articles = '/articles';
   static const settings = '/reglages';
+  static const sell = '/vendre';
+  static const bilan = '/bilan';
+  static String saleDetail(String id) => '/vente/$id';
 }
 
 GoRouter buildRouter({
@@ -97,6 +100,18 @@ GoRouter buildRouter({
         ],
       ),
       GoRoute(path: Routes.settings, builder: (_, _) => const SettingsScreen()),
+      GoRoute(
+        path: Routes.sell,
+        builder: (_, _) => const PendingScreen(title: "J'ai vendu"),
+      ),
+      GoRoute(
+        path: Routes.bilan,
+        builder: (_, _) => const PendingScreen(title: 'Bilan'),
+      ),
+      GoRoute(
+        path: '/vente/:id',
+        builder: (_, _) => const PendingScreen(title: 'Vente'),
+      ),
     ],
   );
 }
@@ -119,5 +134,17 @@ class LoadingScreen extends StatelessWidget {
         ],
       ),
     ),
+  );
+}
+
+/// Écran pas encore construit (remplacé par son ticket).
+class PendingScreen extends StatelessWidget {
+  const PendingScreen({super.key, required this.title});
+  final String title;
+
+  @override
+  Widget build(BuildContext context) => Scaffold(
+    appBar: AppBar(title: Text(title)),
+    body: const SizedBox.shrink(),
   );
 }

@@ -13,6 +13,7 @@ class Settings extends Table {
   Set<Column> get primaryKey => {key};
 }
 
+@DataClassName('Person')
 class People extends Table {
   TextColumn get id => text()();
   TextColumn get name => text()();
@@ -80,6 +81,7 @@ class Payments extends Table {
 }
 
 /// kind : event | answer | error
+@DataClassName('OutboxItem')
 class Outbox extends Table {
   TextColumn get id => text()();
   TextColumn get kind => text()();
