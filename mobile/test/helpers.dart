@@ -11,7 +11,8 @@ import 'package:drift/native.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
-import 'package:material_ui/material_ui.dart' show ButtonStyleButton;
+import 'package:material_ui/material_ui.dart'
+    show ButtonStyleButton, FlutterError, Size;
 
 typedef Handler = (int, Map<String, dynamic>) Function(RequestOptions r);
 
@@ -87,10 +88,14 @@ class TestEnv {
 
   late ProviderContainer container;
 
-  Future<void> pump(WidgetTester tester) async {
+  Future<void> pump(WidgetTester tester) => pumpWith(tester, const []);
+
+  Future<void> pumpWith(WidgetTester tester, List<Override> extra) async {
     await tester.pumpWidget(
       UncontrolledProviderScope(
-        container: container = ProviderContainer(overrides: overrides),
+        container: container = ProviderContainer(
+          overrides: [...overrides, ...extra],
+        ),
         child: const CahierApp(),
       ),
     );
@@ -136,4 +141,24 @@ Future<void> tapText(WidgetTester tester, String text) async {
   await tester.pumpAndSettle();
   await tester.tap(f);
   await settle(tester);
+}
+
+/// Petit téléphone : 360 × 640 dp, police à 130 %.
+/// Renvoie une fonction qui arrête l'écoute et donne les erreurs de mise en page.
+List<String> Function() smallPhone(WidgetTester tester) {
+  tester.view.physicalSize = const Size(360, 640);
+  tester.view.devicePixelRatio = 1;
+  tester.platformDispatcher.textScaleFactorTestValue = 1.3;
+  final errors = <String>[];
+  final old = FlutterError.onError;
+  FlutterError.onError = (d) =>
+      errors.add(d.toString().split('\n').take(8).join(' | '));
+  addTearDown(() {
+    tester.view.reset();
+    tester.platformDispatcher.clearTextScaleFactorTestValue();
+  });
+  return () {
+    FlutterError.onError = old;
+    return errors;
+  };
 }

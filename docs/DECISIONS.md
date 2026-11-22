@@ -32,3 +32,8 @@
 - 2026-11-22 — T-05 — Sur Aujourd'hui, "On vous doit" = restes des ventes du jour ; "Reçu" = tous les paiements du jour (même pour d'anciennes ventes), comme docs/02
 - 2026-11-22 — T-05 — Ligne de vente : partiel = pastille orange "Doit X", rien payé = rouge "Doit X", soldé = vert "Payé" ; titre = personne, sinon premier article, sinon "Vente"
 - 2026-11-22 — T-05 — Pas de navigation vers les jours futurs ; dates en français écrites à la main (pas d'initialisation intl)
+- 2026-11-22 — T-06 — Montant : toucher un article ajoute son prix, le pavé tape à la suite du montant courant, retirer une étiquette retire son prix ; le montant affiché fait foi
+- 2026-11-22 — T-06 — "+ Photo" ouvre la galerie ; une petite icône appareil photo à côté pour le second choix (pas de menu, un toucher de moins)
+- 2026-11-22 — T-06 — Garder un article depuis une photo : il est ajouté ×1 ; le montant prend son prix seulement s'il était à 0. Non merci : photo attachée à la vente
+- 2026-11-22 — T-06 — Boutons des fenêtres "Qui vous doit ?" et "Combien avez-vous reçu ?" : "Continuer" (mot déjà utilisé en C1) ; "Une partie" avec reçu >= montant = payé
+- 2026-11-22 — T-06 — Annuler (bandeau 5 s) supprime la vente (suppression douce), rétablit "il en reste" et efface la photo si plus rien ne l'utilise

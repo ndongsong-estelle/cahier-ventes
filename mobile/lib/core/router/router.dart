@@ -8,6 +8,7 @@ import '../../features/account/ui/phone_screen.dart';
 import '../../features/account/ui/pin_login_screen.dart';
 import '../../features/articles/ui/articles_screen.dart';
 import '../../features/debts/ui/debts_screen.dart';
+import '../../features/sell/ui/sell_screen.dart';
 import '../../features/settings/ui/settings_screen.dart';
 import '../../features/today/ui/today_screen.dart';
 import '../auth/session.dart';
@@ -100,10 +101,7 @@ GoRouter buildRouter({
         ],
       ),
       GoRoute(path: Routes.settings, builder: (_, _) => const SettingsScreen()),
-      GoRoute(
-        path: Routes.sell,
-        builder: (_, _) => const PendingScreen(title: "J'ai vendu"),
-      ),
+      GoRoute(path: Routes.sell, builder: (_, _) => const SellScreen()),
       GoRoute(
         path: Routes.bilan,
         builder: (_, _) => const PendingScreen(title: 'Bilan'),

@@ -182,11 +182,13 @@ class _Dot extends StatelessWidget {
     children: [
       Icon(Icons.circle, size: 14, color: color),
       const SizedBox(width: 6),
-      Text(
-        text,
-        style: const TextStyle(
-          fontSize: AppSizes.bodyText,
-          fontWeight: FontWeight.w600,
+      Flexible(
+        child: Text(
+          text,
+          style: const TextStyle(
+            fontSize: AppSizes.bodyText,
+            fontWeight: FontWeight.w600,
+          ),
         ),
       ),
     ],

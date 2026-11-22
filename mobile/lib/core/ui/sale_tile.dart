@@ -117,21 +117,32 @@ class SaleTile extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 8),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Text(
-                  formatFcfa(item.amount),
-                  style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w800,
+            ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 130),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(
+                      formatFcfa(item.amount),
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
                   ),
-                ),
-                Text(
-                  showDate ? formatDay(item.soldAt) : formatTime(item.soldAt),
-                  style: const TextStyle(fontSize: 16, color: AppColors.muted),
-                ),
-              ],
+                  Text(
+                    showDate ? formatDay(item.soldAt) : formatTime(item.soldAt),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      color: AppColors.muted,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ],
         ),

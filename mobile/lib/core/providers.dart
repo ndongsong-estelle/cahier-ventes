@@ -9,6 +9,7 @@ import 'config/app_config.dart';
 import 'db/database.dart';
 import 'db/ledger_repository.dart';
 import 'db/settings_store.dart';
+import 'photos/photo_service.dart';
 
 /// Remplacé dans les tests (NativeDatabase.memory()).
 final databaseProvider = Provider<AppDatabase>((ref) {
@@ -76,3 +77,8 @@ final ledgerChangesProvider = StreamProvider<int>((ref) async* {
     yield ++n;
   }
 });
+
+/// Remplacé dans les tests par un faux sélecteur de photos.
+final photoServiceProvider = Provider<PhotoService>(
+  (ref) => DevicePhotoService(),
+);

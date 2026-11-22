@@ -56,4 +56,20 @@ void main() {
     await settle(tester);
     expect(find.text('Bilan'), findsOneWidget);
   });
+
+  testWidgets('Aujourd hui tient sur 360 × 640 avec police à 130 %', (
+    tester,
+  ) async {
+    final layoutErrors = smallPhone(tester);
+    final env = TestEnv();
+    await env.loggedIn();
+    await env.pump(tester);
+    await tester.runAsync(() async {
+      final l = env.container.read(ledgerProvider);
+      final p = await l.addPerson('Maman Ngo Bassogog Christelle');
+      await l.addSale(amount: 1250000, personId: p, paidNow: 5000);
+    });
+    await settle(tester);
+    expect(layoutErrors(), isEmpty);
+  });
 }

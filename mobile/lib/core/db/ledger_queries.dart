@@ -136,3 +136,60 @@ extension LedgerQueries on LedgerRepository {
     return row.read<int>('total');
   }
 }
+
+extension SellQueries on LedgerRepository {
+  /// Articles visibles, les plus vendus (30 jours) d'abord, puis les plus récents.
+  Future<List<Article>> articlesForSale() async {
+    final all =
+        await (db.select(db.articles)
+              ..where((a) => a.deletedAt.isNull() & a.hidden.equals(false))
+              ..orderBy([(a) => OrderingTerm.desc(a.createdAt)]))
+            .get();
+    final rank = {
+      for (final (i, e) in topArticles(await soldQuantities(), now).indexed)
+        e.key: i,
+    };
+    final big = rank.length + 1;
+    final indexed = all.indexed.toList()
+      ..sort((x, y) {
+        final c = (rank[x.$2.id] ?? big).compareTo(rank[y.$2.id] ?? big);
+        return c != 0 ? c : x.$1.compareTo(y.$1);
+      });
+    return [for (final (_, a) in indexed) a];
+  }
+
+  /// Noms déjà utilisés, du plus récent au plus ancien.
+  Future<List<Person>> recentPeople({int limit = 30}) async {
+    final rows = await db
+        .customSelect(
+          'SELECT p.id FROM people p LEFT JOIN sales s ON s.person_id = p.id AND s.deleted_at IS NULL '
+          'WHERE p.deleted_at IS NULL GROUP BY p.id '
+          'ORDER BY MAX(COALESCE(s.sold_at, p.created_at)) DESC LIMIT ?',
+          variables: [Variable.withInt(limit)],
+          readsFrom: {db.people, db.sales},
+        )
+        .get();
+    final ids = rows.map((r) => r.read<String>('id')).toList();
+    if (ids.isEmpty) return const [];
+    final people = {
+      for (final p in await (db.select(
+        db.people,
+      )..where((p) => p.id.isIn(ids))).get())
+        p.id: p,
+    };
+    return [for (final id in ids) ?people[id]];
+  }
+
+  /// Une photo encore utilisée par une vente ou un article ?
+  Future<bool> photoInUse(String path) async {
+    final row = await db
+        .customSelect(
+          'SELECT (SELECT COUNT(*) FROM sales WHERE photo_path = ?1 AND deleted_at IS NULL) + '
+          '(SELECT COUNT(*) FROM articles WHERE photo_path = ?1 AND deleted_at IS NULL) AS n',
+          variables: [Variable.withString(path)],
+          readsFrom: {db.sales, db.articles},
+        )
+        .getSingle();
+    return row.read<int>('n') > 0;
+  }
+}
