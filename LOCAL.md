@@ -22,9 +22,11 @@ parfois en session cloud. Fais-le une fois chez toi, puis pousse.
 Vérifie que composer.lock et pubspec.lock sont bien commités (ils le sont par défaut).
 
 ## 2. Configurer l'environnement de la session cloud
-Dans les réglages de l'environnement Claude Code, mets comme script d'installation : `bash scripts/setup-env.sh`.
-Ainsi PHP, Composer et Flutter sont installés une fois au démarrage, et pas par l'agent au fil de la conversation.
-Si Flutter ne s'installe pas dans le cloud, la CI GitHub reste l'arbitre des tests mobiles.
+Sur claude.ai/code, ouvre les réglages de ton environnement (icône d'engrenage à côté de son nom), garde
+l'accès réseau sur "Trusted", et colle le contenu de scripts/setup-env.sh dans le champ "Setup script".
+PHP 8.3 et Composer sont déjà installés dans le cloud ; le script n'ajoute que Flutter.
+Le hook de .claude/settings.json lance scripts/install_pkgs.sh au début de chaque session (composer install,
+flutter pub get) : rien à faire de ton côté. Si Flutter ne s'installe pas, la CI GitHub reste l'arbitre des tests mobiles.
 
 ## 3. Une session par phase
 Le backlog a trois phases (A, B, C). Ouvre une nouvelle session pour chacune avec PROMPT_PHASE.md.
