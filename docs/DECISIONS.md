@@ -16,3 +16,7 @@
 - 2026-11-22 — T-01 — formatFcfa utilise des espaces insécables ("15 000 F" ne se coupe jamais en deux lignes)
 - 2026-11-22 — T-01 — applicationId passé à cm.cahierventes.app et minSdk 26 (docs/02) ; namespace Kotlin inchangé
 - 2026-11-22 — T-01 — Imports via package:material_ui (package:flutter/material.dart est déprécié depuis Flutter 3.47)
+- 2026-11-22 — T-02 — Codes faibles : 4 chiffres identiques, suites (1234/4321), motif ABAB (1212) et une courte liste (2580, 1122…) ; même règle à copier dans l'app
+- 2026-11-22 — T-02 — Erreurs API : {code, message} (code stable pour l'app, phrase en français) ; numéro inconnu au login = 404 unknown_phone
+- 2026-11-22 — T-02 — Le nom du token Sanctum est l'id du téléphone (devices.id) : last_seen_at mis à jour sans table de liaison
+- 2026-11-22 — T-02 — Sans OTP, pin/reset renvoie 403 otp_disabled : le code oublié passe par le code provisoire d'Estha (/admin)
