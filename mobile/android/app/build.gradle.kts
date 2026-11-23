@@ -54,6 +54,11 @@ android {
         }
     }
 
+    // Les flavors définissent app_name avec resValue : désactivé par défaut depuis AGP 9.
+    buildFeatures {
+        resValues = true
+    }
+
     flavorDimensions += "env"
     productFlavors {
         // APK de test : HTTP en clair autorisé (src/dev), installable à côté du pilote.
