@@ -76,3 +76,4 @@
 - 2026-11-22 — T-15 — Photos d'une vente supprimée gardées sur le téléphone (suppression douce, Annuler et copie possibles) ; effacées seulement à l'Annuler d'une nouvelle vente ou au changement de photo d'un article
 - 2026-11-22 — T-15 — Risque signalé (non changé) : throttle public de 10/min/IP alors que les réseaux mobiles partagent les IP (CGNAT) ; noté dans DEPLOY.md
 - 2026-11-23 — CI — compileSdk = 37 (exigé par flutter_local_notifications, sms_autofill, androidx.core 1.19) ; resValues activé pour les flavors (AGP 9). minSdk 26 inchangé
+- 2026-11-23 — CI — Java 21 dans la CI (le lint d'AGP 9 plantait sous Java 17 : List.removeLast) ; l'app reste compilée pour Java 17

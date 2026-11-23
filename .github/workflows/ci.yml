@@ -55,7 +55,7 @@ jobs:
           [ -n "$KEYSTORE_BASE64" ] || { echo "::error::Keystore manquant dans les secrets"; exit 1; }
       - if: hashFiles('mobile/pubspec.yaml') != ''
         uses: actions/setup-java@v4
-        with: { distribution: temurin, java-version: '17' }
+        with: { distribution: temurin, java-version: '21' }  # lint d'AGP 9 exige Java 21 ; l'app reste en Java 17
       - if: hashFiles('mobile/pubspec.yaml') != ''
         uses: subosito/flutter-action@v2
         with: { channel: stable, cache: true }
