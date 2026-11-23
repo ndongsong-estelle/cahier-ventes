@@ -71,3 +71,7 @@
 - 2026-11-22 — T-14 — Calculs en PHP sur les événements chargés (suffisant pour un pilote de quelques dizaines de comptes, à revoir au-delà)
 - 2026-11-22 — T-14 — Code provisoire : jamais un code faible ; débloque le compte ; la personne doit en choisir un nouveau à la connexion (must_change_pin)
 - 2026-11-22 — T-14 — / redirige vers /confidentialite ; /admin noindex ; mot de passe admin de 12 caractères minimum (pilote:admin)
+- 2026-11-22 — T-15 — Relecture 01-03 : ajout de pilote:supprimer-inactifs (planifié chaque nuit) pour tenir la promesse « comptes inactifs supprimés après 12 mois » de /confidentialite
+- 2026-11-22 — T-15 — Mots interdits : test automatique sur tous les textes de lib/ ; « effacés du serveur » remplacé par « effacés partout » dans Supprimer mon compte
+- 2026-11-22 — T-15 — Photos d'une vente supprimée gardées sur le téléphone (suppression douce, Annuler et copie possibles) ; effacées seulement à l'Annuler d'une nouvelle vente ou au changement de photo d'un article
+- 2026-11-22 — T-15 — Risque signalé (non changé) : throttle public de 10/min/IP alors que les réseaux mobiles partagent les IP (CGNAT) ; noté dans DEPLOY.md

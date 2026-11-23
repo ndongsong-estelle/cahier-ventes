@@ -139,7 +139,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       context,
       title: 'Supprimer mon compte',
       text:
-          'Votre compte et la copie de votre cahier seront effacés du serveur et de ce téléphone. '
+          'Votre compte et la copie de votre cahier seront effacés partout, aussi sur ce téléphone. '
           'Cela ne peut pas être annulé. Il faut internet.',
       labels: const ['Code secret'],
       okLabel: 'Supprimer',

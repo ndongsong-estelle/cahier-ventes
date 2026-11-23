@@ -158,3 +158,15 @@ it('pilote:resume affiche le tableau', function () {
 it('page publique /confidentialite', function () {
     $this->get('/confidentialite')->assertOk()->assertSee('Supprimer mon compte')->assertSee('12 mois')->assertSee('sans', false);
 });
+
+it('supprime les comptes inactifs depuis 12 mois, garde les autres', function () {
+    $old = User::factory()->create();
+    $recent = User::factory()->create();
+    Device::create(['id' => (string) Str::uuid(), 'user_id' => $old->id, 'first_seen_at' => now()->subMonths(14), 'last_seen_at' => now()->subMonths(13)]);
+    Device::create(['id' => (string) Str::uuid(), 'user_id' => $recent->id, 'first_seen_at' => now()->subMonths(14), 'last_seen_at' => now()->subDays(3)]);
+
+    $this->artisan('pilote:supprimer-inactifs --essai')->expectsOutputToContain('À supprimer : 1');
+    expect(User::count())->toBe(2);
+    $this->artisan('pilote:supprimer-inactifs')->assertSuccessful();
+    expect(User::pluck('id')->all())->toBe([$recent->id]);
+});

@@ -93,7 +93,7 @@ class AuthController extends Controller
     public function resetPin(Request $request): JsonResponse
     {
         if (! config('pilote.otp_enabled')) {
-            return ApiError::make('otp_disabled', 'Appelez Estha pour recevoir un code provisoire.', 403);
+            return ApiError::make('otp_disabled', "Contactez l'aide sur WhatsApp pour recevoir un code provisoire.", 403);
         }
         $data = $request->validate([
             'phone' => 'required|string|max:20',
