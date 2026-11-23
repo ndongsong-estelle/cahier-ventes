@@ -10,6 +10,7 @@ import '../../../core/db/settings_store.dart';
 import '../../../core/format/dates.dart';
 import '../../../core/format/fcfa.dart';
 import '../../../core/providers.dart';
+import '../../../core/telemetry/telemetry.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/ui/contact.dart';
 import '../../sale/ui/sale_detail_screen.dart';
@@ -58,6 +59,7 @@ class _ReceiptScreenState extends ConsumerState<ReceiptScreen> {
           name: 'recu-${d.sale.id.substring(0, 8)}',
           text: receiptText(d, shop),
         );
+    trackWith(ref.read(telemetryProvider), 'receipt_sent');
   }
 
   @override
@@ -85,12 +87,15 @@ class _ReceiptScreenState extends ConsumerState<ReceiptScreen> {
                 if (detail.person?.phone != null) ...[
                   const SizedBox(height: 10),
                   OutlinedButton.icon(
-                    onPressed: () => ref.read(urlOpenerProvider)(
-                      whatsAppUri(
-                        detail.person!.phone!,
-                        receiptText(detail, shop),
-                      ),
-                    ),
+                    onPressed: () {
+                      trackWith(ref.read(telemetryProvider), 'receipt_sent');
+                      ref.read(urlOpenerProvider)(
+                        whatsAppUri(
+                          detail.person!.phone!,
+                          receiptText(detail, shop),
+                        ),
+                      );
+                    },
                     icon: const Icon(Icons.chat, size: 26),
                     label: Text('WhatsApp ${detail.person!.name}'),
                   ),

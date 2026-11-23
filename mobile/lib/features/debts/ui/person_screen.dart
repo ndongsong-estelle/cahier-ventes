@@ -5,6 +5,8 @@ import 'package:material_ui/material_ui.dart';
 import '../../../core/db/ledger_queries.dart';
 import '../../../core/format/fcfa.dart';
 import '../../../core/providers.dart';
+import '../../../core/telemetry/telemetry.dart';
+import '../../../core/telemetry/whitelist.dart';
 import '../../../core/router/router.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/ui/pay_dialog.dart';
@@ -120,6 +122,10 @@ class _Body extends ConsumerWidget {
       final ledger = ref.read(ledgerProvider);
       final before = [for (final s in d.unpaid) await ledger.snapshot(s.id)];
       await ledger.personPaid(d.person.id, input.amount, method: input.method);
+      trackWith(ref.read(telemetryProvider), 'payment_added', {
+        'method': input.method.code,
+        'amount_bucket': amountBucket(input.amount),
+      });
       if (!context.mounted) return;
       showUndo(context, '$name a payé ${formatFcfa(input.amount)}', () async {
         for (final s in before) {

@@ -8,6 +8,8 @@ import '../../../core/domain/ledger.dart';
 import '../../../core/format/dates.dart';
 import '../../../core/format/fcfa.dart';
 import '../../../core/providers.dart';
+import '../../../core/telemetry/telemetry.dart';
+import '../../../core/telemetry/whitelist.dart';
 import '../../../core/router/router.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/ui/pay_dialog.dart';
@@ -63,11 +65,16 @@ class _Detail extends ConsumerWidget {
       );
       if (input == null) return;
       await ledger.addPayment(d.sale.id, input.amount, method: input.method);
+      trackWith(ref.read(telemetryProvider), 'payment_added', {
+        'method': input.method.code,
+        'amount_bucket': amountBucket(input.amount),
+      });
     }
 
     Future<void> remove() async {
       if (!await confirmDelete(context, 'Supprimer cette vente ?')) return;
       await ledger.deleteSale(d.sale.id);
+      trackWith(ref.read(telemetryProvider), 'sale_deleted');
       if (!context.mounted) return;
       showUndo(context, 'Vente supprimée', () => ledger.restoreSale(d.sale.id));
       context.pop();

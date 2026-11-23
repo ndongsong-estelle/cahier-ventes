@@ -5,6 +5,7 @@ import 'package:material_ui/material_ui.dart';
 import 'core/auth/session.dart';
 import 'core/providers.dart';
 import 'core/router/router.dart';
+import 'core/telemetry/telemetry.dart';
 import 'core/theme/app_theme.dart';
 import 'features/settings/ui/lock_gate.dart';
 
@@ -76,6 +77,7 @@ class _CahierAppState extends ConsumerState<CahierApp> {
     ref.listen(sessionProvider, (before, now) {
       _refresh.value++;
       if (now.isLoggedIn && before?.isLoggedIn != true) {
+        trackWith(ref.read(telemetryProvider), 'app_opened');
         ref.read(syncRunnerProvider).start();
         _startNotifications();
         // Ouverture de l'app (session gardée) : code demandé si l'option est active.

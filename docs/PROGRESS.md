@@ -29,6 +29,7 @@
 - Bugs trouvés par les tests et corrigés : Hero en double sur "J'ai vendu", messages d'erreur hors écran, verrou sans Overlay, "par rapport à le mois".
 - Tests : 36 serveur, 93 app. analyze et pint propres.
 - À vérifier par Estha : reçu partagé dans WhatsApp, notification du dimanche, verrou à l'ouverture, copie manuelle d'un téléphone à l'autre.
+| T-13 | Fait | Serveur /events /answers /errors (liste blanche, dédoublonnage, correction d'horloge, 200 max) + questions seedées dans /config ; app : outbox, lots de 200, erreurs, cartes de questions ; 8 tests serveur + 8 tests app |
 
 ## Environnement
 Session cloud : PHP 8.3.6, Composer, Flutter 3.50.1 installés. composer install lent (paquets clonés depuis git) mais OK.

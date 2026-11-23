@@ -10,15 +10,11 @@ import '../../../core/theme/app_theme.dart';
 import '../../../core/ui/sale_tile.dart';
 import '../../../core/ui/sell_button.dart';
 import '../../../core/ui/settings_button.dart';
+import '../questions.dart';
 import '../today_providers.dart';
 
-/// Hauteur des cartes "questions courtes" (T-13) : insérées ici.
-typedef TopCardBuilder = Widget? Function(BuildContext context);
-
 class TodayScreen extends ConsumerWidget {
-  const TodayScreen({super.key, this.topCard});
-
-  final TopCardBuilder? topCard;
+  const TodayScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -74,11 +70,7 @@ class TodayScreen extends ConsumerWidget {
         child: summary.when(
           loading: () => const Center(child: CircularProgressIndicator()),
           error: (e, _) => Center(child: Text('$e')),
-          data: (s) => _DayView(
-            summary: s,
-            isToday: isToday,
-            topCard: topCard?.call(context),
-          ),
+          data: (s) => _DayView(summary: s, isToday: isToday),
         ),
       ),
     );
@@ -86,17 +78,16 @@ class TodayScreen extends ConsumerWidget {
 }
 
 class _DayView extends StatelessWidget {
-  const _DayView({required this.summary, required this.isToday, this.topCard});
+  const _DayView({required this.summary, required this.isToday});
   final DaySummary summary;
   final bool isToday;
-  final Widget? topCard;
 
   @override
   Widget build(BuildContext context) {
     return ListView(
       padding: const EdgeInsets.only(bottom: 110),
       children: [
-        ?topCard,
+        if (isToday) const QuestionCard(),
         InkWell(
           onTap: () => context.push(Routes.bilan),
           child: Padding(

@@ -5,6 +5,7 @@ import '../../../core/db/ledger_queries.dart';
 import '../../../core/domain/ledger.dart';
 import '../../../core/format/fcfa.dart';
 import '../../../core/providers.dart';
+import '../../../core/telemetry/telemetry.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../articles/ui/article_tile.dart';
 
@@ -25,8 +26,21 @@ final bilanProvider = FutureProvider.autoDispose
     });
 
 /// Bilan : Cette semaine / Ce mois.
-class BilanScreen extends StatelessWidget {
+class BilanScreen extends ConsumerStatefulWidget {
   const BilanScreen({super.key});
+
+  @override
+  ConsumerState<BilanScreen> createState() => _BilanScreenState();
+}
+
+class _BilanScreenState extends ConsumerState<BilanScreen> {
+  @override
+  void initState() {
+    super.initState();
+    trackWith(ref.read(telemetryProvider), 'summary_opened', {
+      'period': 'week',
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -35,7 +49,12 @@ class BilanScreen extends StatelessWidget {
       child: Scaffold(
         appBar: AppBar(
           title: const Text('Bilan'),
-          bottom: const TabBar(
+          bottom: TabBar(
+            onTap: (i) => trackWith(
+              ref.read(telemetryProvider),
+              'summary_opened',
+              {'period': i == 0 ? 'week' : 'month'},
+            ),
             labelStyle: TextStyle(fontSize: 19, fontWeight: FontWeight.w700),
             tabs: [
               Tab(text: 'Cette semaine'),

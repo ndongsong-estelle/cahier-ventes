@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:async';
 
 import '../api/api_client.dart';
@@ -69,5 +70,9 @@ Future<Map<String, dynamic>> fetchConfig(
   }
   final support = c['support_whatsapp'];
   if (support is String) await settings.set('support_whatsapp', support);
+  final questions = c['questions'];
+  if (questions is List) {
+    await settings.set('questions_json', jsonEncode(questions));
+  }
   return c;
 }

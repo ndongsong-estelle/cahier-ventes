@@ -8,6 +8,7 @@ import '../../../core/auth/weak_pin.dart';
 import '../../../core/config/app_config.dart';
 import '../../../core/db/settings_store.dart';
 import '../../../core/providers.dart';
+import '../../../core/telemetry/telemetry.dart';
 import '../../../core/router/router.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/ui/contact.dart';
@@ -82,6 +83,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     if (pins[1] != pins[2]) return _say('Les deux codes ne sont pas pareils.');
     try {
       await ref.read(authApiProvider).changePin(pins[0], pins[1]);
+      trackWith(ref.read(telemetryProvider), 'pin_changed');
       final lock = ref.read(pinLockProvider);
       if (await lock.isSet) await lock.save(pins[1]);
       _say('Votre code secret est changé.');
@@ -157,6 +159,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     await ref
         .read(sharerProvider)
         .shareFile(path, text: 'Copie de votre cahier');
+    trackWith(ref.read(telemetryProvider), 'manual_copy_made');
   }
 
   Future<void> _restoreCopy() async {
@@ -171,6 +174,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     if (!ok) return;
     try {
       await ref.read(manualBackupProvider).import(path);
+      trackWith(ref.read(telemetryProvider), 'manual_copy_restored');
       _say('Votre cahier est remis.');
     } on FormatException catch (e) {
       _say(e.message);

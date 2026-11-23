@@ -7,6 +7,7 @@ import '../../../core/db/database.dart';
 import '../../../core/db/ledger_queries.dart';
 import '../../../core/format/fcfa.dart';
 import '../../../core/providers.dart';
+import '../../../core/telemetry/telemetry.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/ui/pay_dialog.dart';
 import '../articles_providers.dart';
@@ -60,6 +61,9 @@ class _ArticleScreenState extends ConsumerState<ArticleScreen> {
     final name = _name.text.trim();
     if (before == null) {
       await ledger.addArticle(name: name, price: price, photoPath: _photo);
+      trackWith(ref.read(telemetryProvider), 'article_created', {
+        'has_photo': _photo != null,
+      });
       if (!mounted) return;
       context.pop();
       return;

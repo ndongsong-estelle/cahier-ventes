@@ -62,3 +62,7 @@
 - 2026-11-22 — T-12 — Copie manuelle : photos rangées dans photos/<nom du fichier> du zip, remises dans le dossier photos de l'app à l'import
 - 2026-11-22 — T-12 — Messages d'erreur du code secret placés au-dessus du pavé (en dessous, ils sortaient de l'écran sur 640 dp)
 - 2026-11-22 — T-12 — "En attente de réseau" affiché quand le dernier envoi de copie a échoué faute de réseau
+- 2026-11-22 — T-13 — Liste blanche avec les valeurs permises pour chaque prop (tab, payment, method, period, tranches) : un événement ou une prop hors liste est ignoré seul, côté app et côté serveur
+- 2026-11-22 — T-13 — Questions courtes : "après N jours" = N jours différents avec des ventes ; "Plus tard" et la croix ferment pour de bon (comme docs/01) ; questions par défaut dans l'app tant que /config n'a pas répondu
+- 2026-11-22 — T-13 — Erreurs reçues avant la connexion : gardées dans l'outbox et envoyées après la connexion (les routes /errors sont authentifiées)
+- 2026-11-22 — T-13 — Tests : la liste blanche de l'app et celle du serveur sont comparées au texte de docs/02 ; le code source est lu pour vérifier chaque événement émis

@@ -15,6 +15,7 @@ import 'db/ledger_repository.dart';
 import 'db/settings_store.dart';
 import 'photos/photo_service.dart';
 import 'sync/sync_runner.dart';
+import 'telemetry/telemetry.dart';
 import 'notifications/weekly_notification.dart';
 import 'ui/contact.dart';
 import 'ui/share.dart';
@@ -105,6 +106,7 @@ final syncStepsProvider = Provider<List<SyncStep>>((ref) {
   final api = ref.watch(apiClientProvider);
   final settings = ref.watch(settingsStoreProvider);
   final backup = ref.watch(backupServiceProvider);
+  final telemetry = ref.watch(telemetryProvider);
   return [
     ({required onOpen}) async {
       final c = await fetchConfig(api, settings);
@@ -113,6 +115,7 @@ final syncStepsProvider = Provider<List<SyncStep>>((ref) {
         ref.read(supportWhatsappProvider.notifier).set(support);
       }
     },
+    ({required onOpen}) => telemetry.flush(api),
     ({required onOpen}) => backup.maybeSend(onOpen: onOpen),
   ];
 });
@@ -164,4 +167,8 @@ final manualBackupProvider = Provider<ManualBackup>(
 /// Verrou à l'ouverture (true = écran du code secret affiché).
 final appLockedProvider = NotifierProvider<ValueController<bool>, bool>(
   () => ValueController<bool>(false),
+);
+
+final telemetryProvider = Provider<Telemetry>(
+  (ref) => Telemetry(ref.watch(databaseProvider)),
 );

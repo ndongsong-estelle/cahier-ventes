@@ -5,6 +5,7 @@ use App\Http\Controllers\Auth\OtpController;
 use App\Http\Controllers\BackupController;
 use App\Http\Controllers\ConfigController;
 use App\Http\Controllers\MeController;
+use App\Http\Controllers\TelemetryController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('throttle:public')->group(function () {
@@ -26,4 +27,7 @@ Route::middleware(['auth:sanctum', 'touch.device', 'throttle:user'])->group(func
     Route::post('backups', [BackupController::class, 'store']);
     Route::get('backups/latest', [BackupController::class, 'latest']);
     Route::get('backups/{id}/file', [BackupController::class, 'file']);
+    Route::post('events', [TelemetryController::class, 'events']);
+    Route::post('answers', [TelemetryController::class, 'answers']);
+    Route::post('errors', [TelemetryController::class, 'errors']);
 });

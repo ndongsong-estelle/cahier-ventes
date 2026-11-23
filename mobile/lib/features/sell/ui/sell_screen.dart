@@ -8,6 +8,8 @@ import '../../../core/db/ledger_queries.dart';
 import '../../../core/db/ledger_repository.dart';
 import '../../../core/format/fcfa.dart';
 import '../../../core/providers.dart';
+import '../../../core/telemetry/telemetry.dart';
+import '../../../core/telemetry/whitelist.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/ui/amount_pad.dart';
 import '../../../core/ui/pay_dialog.dart';
@@ -51,10 +53,16 @@ class _SellScreenState extends ConsumerState<SellScreen> {
 
   bool get _editing => widget.saleId != null;
 
+  final DateTime _startedAt = DateTime.now();
+
   @override
   void initState() {
     super.initState();
-    if (_editing) _load();
+    if (_editing) {
+      _load();
+    } else {
+      trackWith(ref.read(telemetryProvider), 'sale_started');
+    }
   }
 
   Future<void> _load() async {
@@ -91,6 +99,7 @@ class _SellScreenState extends ConsumerState<SellScreen> {
       articles: [for (final e in _tags.entries) SoldArticle(e.key, e.value)],
     );
     if (_photo != before.sale.photoPath) await ledger.setSalePhoto(id, _photo);
+    trackWith(ref.read(telemetryProvider), 'sale_edited');
     if (!mounted) return;
     showUndo(context, 'Vente modifiée', () => ledger.restoreSnapshot(before));
     context.pop();
@@ -140,6 +149,7 @@ class _SellScreenState extends ConsumerState<SellScreen> {
       price: keep.price,
       photoPath: path,
     );
+    trackWith(ref.read(telemetryProvider), 'article_kept');
     final article = (await ledger.article(id))!;
     _known.add(article);
     setState(() {
@@ -175,10 +185,24 @@ class _SellScreenState extends ConsumerState<SellScreen> {
       method: _method,
       photoPath: _photo,
     );
+    final telemetry = ref.read(telemetryProvider);
+    final paidAmount = paidNow ?? 0;
+    trackWith(telemetry, 'sale_saved', {
+      'payment': paidAmount >= _amount
+          ? 'paid'
+          : (paidAmount > 0 ? 'partial' : 'unpaid'),
+      'method': _method.code,
+      'amount_bucket': amountBucket(_amount),
+      'articles_count': _tags.values.fold<int>(0, (a, b) => a + b),
+      'used_photo': _tags.isNotEmpty || _photo != null,
+      'has_person': personId != null,
+      'seconds': DateTime.now().difference(_startedAt).inSeconds.clamp(0, 600),
+    });
     if (!mounted) return;
     final photos = ref.read(photoServiceProvider);
     final photo = _photo;
     showUndo(context, 'Vente enregistrée', () async {
+      trackWith(telemetry, 'sale_undone');
       await ledger.deleteSale(saleId);
       if (photo != null && !await ledger.photoInUse(photo)) {
         await photos.delete(photo);
