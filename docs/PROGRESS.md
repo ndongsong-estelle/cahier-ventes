@@ -32,6 +32,7 @@
 | T-13 | Fait | Serveur /events /answers /errors (liste blanche, dédoublonnage, correction d'horloge, 200 max) + questions seedées dans /config ; app : outbox, lots de 200, erreurs, cartes de questions ; 8 tests serveur + 8 tests app |
 | T-14 | Fait | Tableau de bord /admin (connexion + throttle, 3 chiffres, tableau, fiche compte, notes, code provisoire, suppression), pilote:admin, pilote:resume, /confidentialite ; 9 tests |
 | T-15 | Fait | mobile/RELEASE.md, backend/DEPLOY.md, relecture 01-03 (purge des comptes inactifs ajoutée), test des mots interdits, résumé final |
+| CI | Fait | Après push : resValues (AGP 9), compileSdk 37, Java 21 en CI ; run n° 7 vert, APK de dev en artifact |
 
 ## Environnement
 Session cloud : PHP 8.3.6, Composer, Flutter 3.50.1 installés. composer install lent (paquets clonés depuis git) mais OK.
@@ -44,16 +45,14 @@ Session cloud : PHP 8.3.6, Composer, Flutter 3.50.1 installés. composer install
 - À vérifier par Estha : rien n'a pu être poussé ni passé en CI (voir ci-dessous).
 
 ## Résumé final
-Les 16 tickets (T-00 à T-15) sont faits et commités un par un sur `main`, en local. Aucun n'a pu être poussé :
-GitHub a refusé chaque `git push` (403, pas d'accès de Claude au dépôt), donc la CI n'a jamais tourné et l'APK n'a jamais été construit.
-Les tests tournent ici : 54 serveur et 102 app, tous au vert. Il n'y a pas de SDK Android dans cette session, donc
-la compilation Android (Gradle, désugarage, manifeste) est la principale inconnue.
+Les 16 tickets (T-00 à T-15) sont faits, commités un par un et poussés sur `main` (accès GitHub rétabli le 23/11).
+La CI est verte depuis le run n° 7 (commit 728a9bb) : backend (pint + 54 tests), app (analyze + 102 tests) et APK de dev
+(artifact `apk-dev`, 21 Mo, armeabi-v7a + arm64-v8a). Trois corrections de build ont été nécessaires après le premier push :
+`resValues` activé (AGP 9), `compileSdk = 37` (plugins), Java 21 dans la CI (lint d'AGP 9).
+Pas encore testés : le Build pilote (il attend le keystore et PILOT_API_URL) et l'app sur un vrai téléphone.
 
 ## Ce qui reste à faire pour Estha
-1. **Accès GitHub** : connecter GitHub à Claude (claude.ai/connect-github) et installer l'app Claude sur le dépôt, puis pousser
-   les commits locaux de `main` (16 commits T-00 à T-15) : `git push origin main` depuis cette session ou une nouvelle.
-2. **CI** : vérifier qu'elle passe (backend : pint + tests ; mobile : analyze + tests + APK). Si le build APK échoue, c'est
-   probablement le désugarage Java ou le manifeste (notifications) : coller les 20 lignes utiles de l'erreur.
+1. ~~Accès GitHub~~ fait. 2. ~~CI verte~~ fait (run n° 7, artifact `apk-dev`).
 3. **APK de test** : XAMPP + `php artisan serve --host=0.0.0.0`, CI > Run workflow avec `api_url`, installer sur deux vrais
    téléphones d'entrée de gamme. Vérifier : création du compte sans aide, « J'ai vendu » en 3 touchers, bandeau Annuler,
    récupération du cahier sur un deuxième téléphone, reçu partagé dans WhatsApp, verrou à l'ouverture,
@@ -69,4 +68,4 @@ la compilation Android (Gradle, désugarage, manifeste) est la principale inconn
    « On vous doit » du Bilan = restes des ventes de la période ; reçu WhatsApp en texte.
 
 ## Dernière session
-2026-11-22/23 : backlog complet T-00 → T-15 en une session, push impossible (403).
+2026-11-22/23 : backlog complet T-00 → T-15 ; push fait le 23/11 après rétablissement de l'accès ; CI verte au run n° 7.
