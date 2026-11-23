@@ -19,7 +19,8 @@ if (hasReleaseKey) {
 
 android {
     namespace = "cm.cahierventes.cahier_ventes"
-    compileSdk = flutter.compileSdkVersion
+    // flutter_local_notifications, sms_autofill et androidx.core 1.19 exigent 37 (minSdk et targetSdk inchangés).
+    compileSdk = 37
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
