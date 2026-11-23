@@ -66,3 +66,8 @@
 - 2026-11-22 — T-13 — Questions courtes : "après N jours" = N jours différents avec des ventes ; "Plus tard" et la croix ferment pour de bon (comme docs/01) ; questions par défaut dans l'app tant que /config n'a pas répondu
 - 2026-11-22 — T-13 — Erreurs reçues avant la connexion : gardées dans l'outbox et envoyées après la connexion (les routes /errors sont authentifiées)
 - 2026-11-22 — T-13 — Tests : la liste blanche de l'app et celle du serveur sont comparées au texte de docs/02 ; le code source est lu pour vérifier chaque événement émis
+- 2026-11-22 — T-14 — Ventes du tableau de bord = sale_saved − sale_undone (les ventes supprimées plus tard ne sont pas retirées : sale_deleted est compté à part dans « fonctions utilisées »)
+- 2026-11-22 — T-14 — "Actif" = au moins un événement ce jour-là (heure de Douala) ; "ligne grise" = aucune vente aujourd'hui ni les 2 jours d'avant
+- 2026-11-22 — T-14 — Calculs en PHP sur les événements chargés (suffisant pour un pilote de quelques dizaines de comptes, à revoir au-delà)
+- 2026-11-22 — T-14 — Code provisoire : jamais un code faible ; débloque le compte ; la personne doit en choisir un nouveau à la connexion (must_change_pin)
+- 2026-11-22 — T-14 — / redirige vers /confidentialite ; /admin noindex ; mot de passe admin de 12 caractères minimum (pilote:admin)

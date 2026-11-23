@@ -30,6 +30,7 @@
 - Tests : 36 serveur, 93 app. analyze et pint propres.
 - À vérifier par Estha : reçu partagé dans WhatsApp, notification du dimanche, verrou à l'ouverture, copie manuelle d'un téléphone à l'autre.
 | T-13 | Fait | Serveur /events /answers /errors (liste blanche, dédoublonnage, correction d'horloge, 200 max) + questions seedées dans /config ; app : outbox, lots de 200, erreurs, cartes de questions ; 8 tests serveur + 8 tests app |
+| T-14 | Fait | Tableau de bord /admin (connexion + throttle, 3 chiffres, tableau, fiche compte, notes, code provisoire, suppression), pilote:admin, pilote:resume, /confidentialite ; 9 tests |
 
 ## Environnement
 Session cloud : PHP 8.3.6, Composer, Flutter 3.50.1 installés. composer install lent (paquets clonés depuis git) mais OK.
